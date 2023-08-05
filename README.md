@@ -12,27 +12,20 @@ Windows Enterprise G Building Script
 
 Run Build.cmd
 
-
-=================================================================
-
-Examples:
+# Examples:
 
 - 22621.1 Install.wim image -> Set %VERSION% to 10.0.22621.1 
 - 23516.1000 Install.wim image -> Set %VERSION% to 10.0.23516.1000
 
-=================================================================
+# Notes:
 
-Notes:
-
-WimToESD 
+## WimToESD 
 
 - False: Script wont compress Install.wim to Install.esd
 - True: Script will compress Install.wim to Install.esd
 
-AdvancedTweaks 
+## AdvancedTweaks 
 
 - False: Script wont add additional registry keys to hide Recommended Section, turn off GameDVR etc.
 - True: Script will add additional registry keys to hide Recommended Section, turn off GameDVR etc.
 
-
-=================================================================
