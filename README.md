@@ -7,8 +7,8 @@ Windows Enterprise G Building Script
 - Extract all content of Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD to sxs
 - Extract all content of Microsoft-Windows-Client-LanguagePack-Package-amd64-en-us.esd to lp
 
-Copy install.wim to this directory
-Set Windows Build version in Build.cmd
+- Copy install.wim to this directory
+- Set Windows Build version in Build.cmd
 
 Run Build.cmd
 
