@@ -17,8 +17,8 @@ Run Build.cmd
 
 Examples:
 
-22621.1 Install.wim image -> Set %VERSION% to 10.0.22621.1 
-23516.1000 Install.wim image -> Set %VERSION% to 10.0.23516.1000
+- 22621.1 Install.wim image -> Set %VERSION% to 10.0.22621.1 
+- 23516.1000 Install.wim image -> Set %VERSION% to 10.0.23516.1000
 
 =================================================================
 
