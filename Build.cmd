@@ -116,7 +116,6 @@ if "%WimToESD%"=="True" (
 :: Clean-Up - last touches
 if exist mount rmdir /s /q mount >nul 2>&1
 if exist temp rmdir /s /q temp >nul 2>&1
-if exist install.wim del install.wim >nul 2>&1
 if exist "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.mum" del "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.mum" >nul 2>&1
 if exist "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.cat" del "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.cat" >nul 2>&1
 if exist "sxs\1.xml" del "sxs\1.xml" >nul 2>&1
