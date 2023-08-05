@@ -1,5 +1,5 @@
 # EnterpriseG
-Windows Enterprise G Building Script
+# Windows Enterprise G Building Script
 
 - Download Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD
 - Download Microsoft-Windows-Client-LanguagePack-Package-amd64-en-us.esd
