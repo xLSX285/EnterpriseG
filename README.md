@@ -1,31 +1,34 @@
-# EnterpriseG
 # Windows Enterprise G Building Script
 
-- Download Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD
-- Download Microsoft-Windows-Client-LanguagePack-Package-amd64-en-us.esd
- 
-- Extract all content of Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD to sxs
-- Extract all content of Microsoft-Windows-Client-LanguagePack-Package-amd64-en-us.esd to lp
+- Download & extract all files inside of Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD to sxs
+- Download & extract all files inside of Microsoft-Windows-Client-LanguagePack-Package-amd64-en-us.esd to lp
 
 - Copy install.wim to this directory
-- Set Windows Build version in Build.cmd
+- Set your Settings inside Build.cmd
 
 Run Build.cmd
 
-# Examples:
+# VERSION
 
-- 22621.1 Install.wim image -> Set %VERSION% to 10.0.22621.1 
-- 23516.1000 Install.wim image -> Set %VERSION% to 10.0.23516.1000
+- Specify your Windows Build for example 22621 = 10.0.22621.1
 
-# Notes:
+# vNext
 
-## WimToESD 
+- True: Will use the proper SXS files to Build vNext EnterpriseG. (Canary Channel Builds)
+- False: Will use the proper SXS files to Build current Stable EnterpriseG. (Stable Channel and Dev Channel)
 
-- False: Script wont compress Install.wim to Install.esd
-- True: Script will compress Install.wim to Install.esd
+# ActivateWindows
+
+- True: Will copy activation script onto the Image pre-activating Windows upon installation using KMS38
+- False: Windows will not be activated
 
 ## AdvancedTweaks 
 
 - False: Script wont add additional registry keys to hide Recommended Section, turn off GameDVR etc.
 - True: Script will add additional registry keys to hide Recommended Section, turn off GameDVR etc.
+
+## WimToESD 
+
+- False: Script wont compress Install.wim to Install.esd
+- True: Script will compress Install.wim to Install.esd
 
