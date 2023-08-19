@@ -13,7 +13,7 @@ set "AdvancedTweaks=False"
 :: Pre-Active Windows using KMS38 during setup/installation
 set "ActivateWindows=False"
 
-:: Compress .WIM to .ESD to fit on FAT32 drives
+:: Compress Image from .WIM to .ESD to reduce size 
 set "WimToESD=False"
 
 if not exist mount mkdir mount >nul 2>&1
@@ -52,7 +52,7 @@ echo [+] Converting SKU to EnterpriseG [+]
 dism /scratchdir:"%~dp0temp" /image:mount /apply-unattend:sxs\1.xml || exit /b 1 >nul 2>&1
 echo.
 
-:: Add EN-US Language Pack
+:: Adding Language Pack
 echo [+] Adding Language Pack [+] 
 dism /scratchdir:"%~dp0temp" /image:mount /add-package:lp || exit /b 1 >nul 2>&1
 echo.
@@ -82,6 +82,9 @@ echo [+] Applying Registry Keys [+]
 reg Add "HKLM\zSOFTWARE\Microsoft\PolicyManager\current\device\Accounts" /v "AllowMicrosoftAccountSignInAssistant" /t REG_DWORD /d "1" /f >nul 2>&1
 :: Fix Windows Security
 reg add "HKLM\zSYSTEM\ControlSet001\Control\CI\Policy" /v "VerifiedAndReputablePolicyState" /t REG_DWORD /d 0 /f >nul 2>&1
+:: Add Contoso branding
+reg add "HKLM\zSOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionSubManufacturer /t REG_SZ /d "Contoso Corporation" /f
+reg add "HKLM\zSOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionSubstring /t REG_SZ /d "Contoso" /f
 
 if "%AdvancedTweaks%"=="True" (
     :: Turn off automatic updates
@@ -145,7 +148,7 @@ if "%WimToESD%"=="True" (
     if exist install.wim del install.wim >nul 2>&1
 )
 
-:: Clean-Up - last touches
+:: Clean-Up - last final touches
 if exist mount rmdir /s /q mount >nul 2>&1
 if exist temp rmdir /s /q temp >nul 2>&1
 if exist "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.mum" del "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.mum" >nul 2>&1
