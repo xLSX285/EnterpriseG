@@ -1,7 +1,7 @@
 # Windows Enterprise G Building Script
 
-- Download & extract all files (250+) inside of ```Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD``` to ```sxs```
-- Download & extract all files (10000+) inside of ```Microsoft-Windows-Client-LanguagePack-Package-amd64-en-us.esd``` to ```lp```
+- Download & extract files (250+) inside of ```Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD``` to ```sxs```
+- Download & extract files (10000+) inside of ```Microsoft-Windows-Client-LanguagePack-Package-amd64-en-us.esd``` to ```lp```
 
 > You can acquire both .ESD files through **[UUP Dump](https://uupdump.net)**
 
