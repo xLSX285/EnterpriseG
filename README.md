@@ -14,7 +14,7 @@ Run Build.cmd
 
 ## vNext
 
-- True: Will use the proper SXS files to Build vNext EnterpriseG. (Canary Channel Builds)
+- True: Will use the proper SXS files to Build vNext EnterpriseG. (Canary Channel)
 - False: Will use the proper SXS files to Build current Stable EnterpriseG. (Stable Channel and Dev Channel)
 
 ## ActivateWindows
