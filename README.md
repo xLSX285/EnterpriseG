@@ -3,7 +3,7 @@
 - Download & extract files (250+) inside ```Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD``` to ```sxs```
 - Download & extract files (10000+) inside ```Microsoft-Windows-Client-LanguagePack-Package-amd64-en-us.esd``` to ```lp```
 
-> You can acquire both .ESD files through **[UUP Dump](https://uupdump.net)**
+> You can acquire both .ESD files through **[UUP Dump](https://uupdump.net)**.
 
 - Copy ```install.wim``` to the same directory as the ```Build.cmd``` file
 > Make sure your install.wim file contains ```NO updates``` and ```only includes the Pro Edition```. You can build a clean ISO containing the install.wim with no updates and Pro only through **[UUP Dump](https://uupdump.net)**. You find the ```install.wim``` inside the ```sources``` folder of your ISO.
