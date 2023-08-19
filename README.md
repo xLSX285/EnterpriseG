@@ -8,7 +8,7 @@
 
 Run Build.cmd
 
-> You can acquire both files through [UUP Dump](uupdump.net)
+> You can acquire both files through [UUP Dump](https://uupdump.net)
 
 ## VERSION
 
