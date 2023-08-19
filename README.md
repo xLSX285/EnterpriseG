@@ -8,6 +8,8 @@
 
 Run Build.cmd
 
+> You can acquire both files through [UUP Dump](uupdump.net)
+
 ## VERSION
 
 - Specify your Windows Build for example 22621 = 10.0.22621.1
