@@ -3,12 +3,12 @@
 - Download & extract all files inside of Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD to sxs
 - Download & extract all files inside of Microsoft-Windows-Client-LanguagePack-Package-amd64-en-us.esd to lp
 
+> You can acquire both files through [UUP Dump](https://uupdump.net)
+
 - Copy install.wim to this directory
 - Set your Settings inside Build.cmd
 
 Run Build.cmd
-
-> You can acquire both files through [UUP Dump](https://uupdump.net)
 
 ## VERSION
 
