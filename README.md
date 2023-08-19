@@ -8,16 +8,16 @@
 
 Run Build.cmd
 
-# VERSION
+## VERSION
 
 - Specify your Windows Build for example 22621 = 10.0.22621.1
 
-# vNext
+## vNext
 
 - True: Will use the proper SXS files to Build vNext EnterpriseG. (Canary Channel Builds)
 - False: Will use the proper SXS files to Build current Stable EnterpriseG. (Stable Channel and Dev Channel)
 
-# ActivateWindows
+## ActivateWindows
 
 - True: Will copy activation script onto the Image pre-activating Windows upon installation using KMS38
 - False: Windows will not be activated
