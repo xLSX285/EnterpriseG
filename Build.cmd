@@ -1,26 +1,46 @@
 @echo off
 pushd "%~dp0" >nul 2>&1
 
-:: Specify the Windows Build
+:: Specify the Windows Build (Insider Previews mostly end with .1000 and Stable always with .1)
 set "VERSION=10.0.22621.1"
 
-:: Compress .WIM to .ESD to fit on FAT32 drives
-set "WimToESD=False"
+:: Specify whether the Image you are using is a Windows vNext Build (Canary Channel Builds)
+set "vNext=False"
 
 :: Further Registry Tweaks to disable GameDVR, Recommended Section etc.
 set "AdvancedTweaks=False"
+
+:: Pre-Active Windows using KMS38 during setup/installation
+set "ActivateWindows=False"
+
+:: Compress .WIM to .ESD to fit on FAT32 drives
+set "WimToESD=False"
 
 if not exist mount mkdir mount >nul 2>&1
 if not exist temp mkdir temp >nul 2>&1
 
 :: In case any other Build than 22621.1 is defined, it will rename the file names and the strings inside the files.
 echo [+] Preparing sxs files [+]
-copy files\sxs\* sxs\ >nul 2>&1
-ren "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~10.0.22621.1.mum" "Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.mum" >nul 2>&1
-ren "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~10.0.22621.1.cat" "Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.cat" >nul 2>&1
-powershell -Command "(Get-Content 'sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.mum') -replace '10\.0\.22621\.1','%VERSION%' | Set-Content 'sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.mum'" >nul 2>&1
-powershell -Command "(Get-Content 'sxs\1.xml') -replace '10\.0\.22621\.1','%VERSION%' | Set-Content 'sxs\1.xml'" >nul 2>&1
-echo.
+
+:: If set to false, Stable SXS files will be used.
+if "%vNext%"=="False" (
+    copy files\sxs\* sxs\ >nul 2>&1
+    ren "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~10.0.22621.1.mum" "Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.mum" >nul 2>&1
+    ren "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~10.0.22621.1.cat" "Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.cat" >nul 2>&1
+    powershell -Command "(Get-Content 'sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.mum') -replace '10\.0\.22621\.1','%VERSION%' | Set-Content 'sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.mum'" >nul 2>&1
+    powershell -Command "(Get-Content 'sxs\1.xml') -replace '10\.0\.22621\.1','%VERSION%' | Set-Content 'sxs\1.xml'" >nul 2>&1
+    echo.
+)
+
+:: If set to true, vNext SXS files will be used.
+if "%vNext%"=="True" (
+    copy files\sxs\vNext\* sxs\ >nul 2>&1
+    ren "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~10.0.22621.1.mum" "Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.mum" >nul 2>&1
+    ren "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~10.0.22621.1.cat" "Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.cat" >nul 2>&1
+    powershell -Command "(Get-Content 'sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.mum') -replace '10\.0\.22621\.1','%VERSION%' | Set-Content 'sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.mum'" >nul 2>&1
+    powershell -Command "(Get-Content 'sxs\1.xml') -replace '10\.0\.22621\.1','%VERSION%' | Set-Content 'sxs\1.xml'" >nul 2>&1
+    echo.
+)
 
 :: Mount original install.wim
 echo [+] Mounting Image [+]
@@ -58,20 +78,26 @@ echo.
 :: Apply Registry Keys to Registry Hive
 echo [+] Applying Registry Keys [+] 
 
-:: Don't touch these!
+:: Add Microsoft Account support
 reg Add "HKLM\zSOFTWARE\Microsoft\PolicyManager\current\device\Accounts" /v "AllowMicrosoftAccountSignInAssistant" /t REG_DWORD /d "1" /f >nul 2>&1
+:: Fix Windows Security
 reg add "HKLM\zSYSTEM\ControlSet001\Control\CI\Policy" /v "VerifiedAndReputablePolicyState" /t REG_DWORD /d 0 /f >nul 2>&1
 
 if "%AdvancedTweaks%"=="True" (
+    :: Turn off automatic updates
     reg add "HKLM\zSOFTWARE\Policies\Microsoft\WindowsStore" /v "AutoDownload" /t REG_DWORD /d "2" /f >nul 2>&1
     reg add "HKLM\zSOFTWARE\policies\microsoft\windows\windowsupdate\au" /v "NoAutoUpdate" /t REG_DWORD /d "1" /f >nul 2>&1
+    :: Don't search Windows Update for device drivers
     reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" /v "ExcludeWUDriversInQualityUpdate" /t REG_DWORD /d "1" /f >nul 2>&1
-    reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\PreviewBuilds" /v "AllowBuildPreview" /t REG_DWORD /d "0" /f >nul 2>&1
+    :: Turn off Delivery Optimization
     reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization" /v "DODownloadMode" /t REG_DWORD /d "0" /f >nul 2>&1
+    :: Don't trigger network traffic for maps
     reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\Maps" /v "AllowUntriggeredNetworkTrafficOnSettingsPage" /t REG_DWORD /d "0" /f >nul 2>&1
     reg add "HKLM\zSOFTWARE\Microsoft\OneDrive" /v "PreventNetworkTrafficPreUserSignIn" /t REG_DWORD /d "1" /f >nul 2>&1
+    :: Hide Recommended Section in Start Menu
     reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\Explorer" /v "HideRecommendedSection" /t REG_DWORD /d "1" /f >nul 2>&1
     reg add "HKLM\zNTUSER\Software\Policies\Microsoft\Windows\Explorer" /v "HideRecommendedSection" /t REG_DWORD /d "1" /f >nul 2>&1
+    :: Turn off GameDVR
     reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\GameDVR" /v "AllowGameDVR" /t REG_DWORD /d "0" /f >nul 2>&1
 )
 echo.
@@ -83,13 +109,19 @@ reg unload HKLM\zSOFTWARE >nul 2>&1
 reg unload HKLM\zSYSTEM >nul 2>&1
 echo.
 
-:: Copy License and Activation Scripts to Image
-echo [+] Copying files [+] 
-mkdir mount\Windows\Setup\Scripts >nul 2>&1
+:: Add License to Image
+echo [+] Adding License/EULA [+] 
 copy files\License\license.rtf mount\Windows\System32\Licenses\neutral\_Default\EnterpriseG\license.rtf >nul 2>&1
-copy files\Scripts\MAS_AIO.cmd mount\Windows\Setup\Scripts\MAS_AIO.cmd >nul 2>&1
-copy files\Scripts\SetupComplete.cmd mount\Windows\Setup\Scripts\SetupComplete.cmd >nul 2>&1
 echo.
+
+:: If set to true, WIM will be compressed to ESD to save storage
+if "%ActivateWindows%"=="True" (
+    echo [+] Adding pre-activation for Windows [+]
+    mkdir mount\Windows\Setup\Scripts >nul 2>&1
+    copy files\Scripts\MAS_AIO.cmd mount\Windows\Setup\Scripts\MAS_AIO.cmd >nul 2>&1
+    copy files\Scripts\SetupComplete.cmd mount\Windows\Setup\Scripts\SetupComplete.cmd >nul 2>&1
+    echo.
+)
 
 :: Save all Changes and unmount Image
 echo [+] Saving and unmounting EnterpriseG Image [+] 
