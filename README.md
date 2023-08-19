@@ -6,6 +6,8 @@
 > You can acquire both files through [UUP Dump](https://uupdump.net)
 
 - Copy install.wim to this directory
+> Make sure your install.wim file contains NO updates and only includes the Pro Edition. You can get a clean install.wim with no updates and Pro only through [UUP Dump](https://uupdump.net)
+
 - Set your Settings inside Build.cmd
 
 Run Build.cmd
