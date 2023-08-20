@@ -1,6 +1,5 @@
 # Windows Enterprise G Building Script
 
-Build Windows Enterprise G with ease!
 <p align="center">
   <a>Prebuilt EnterpriseG ISOs</a>
 </p>
