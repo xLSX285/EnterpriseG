@@ -74,3 +74,5 @@ Run `Build.cmd` and let the magic happen!
 - Setting option to remove all inbox apps (UUP Dump can already do that if you specify an App Level in the config)
 - Please feel free to let me you know if you have any ideas.
 
+` Please note that this project requires some basic knowledge. `
+
