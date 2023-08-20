@@ -38,7 +38,7 @@ Run `Build.cmd` and let the magic happen!
 - `True`: Adjust script to build **EnterpriseGN** instead of EnterpriseG
 - `False`: Adjust script to build **EnterpriseG** `Default`
 
-> Please note that this will require `Microsoft-Windows-EditionSpecific-EnterpriseGN-Package.ESD` instead of `Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD` - Be aware that Cumulative Updates cannot be installed and must be reconstructed and installed offline!
+> Please note that this will require `Microsoft-Windows-EditionSpecific-EnterpriseGN-Package.ESD` instead of `Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD` - Be aware that Cumulative Updates cannot be installed and must be reconstructed and installed offline! It's better to stick with EnterpriseG since it can be updated online (with exception being Insider Previews, they can be updated only through inplace upgrades)
 
 ## vNext
 
