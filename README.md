@@ -29,7 +29,7 @@ Run `Build.cmd` and let the magic happen!
 - Specify your Windows Build Number
 ### ```Examples```
 - 22621 **Stable Release** -> 10.0.22621.1 `Default`
-- 25931 *Insider Preview** -> 10.0.25931.1000
+- 25931 **Insider Preview** -> 10.0.25931.1000
 
 > All current **Windows 10**, **Windows 1**1 and **Windows vNext** Builds work with this script. `As of 08/19/23`
 
