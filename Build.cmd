@@ -7,6 +7,9 @@ set "Windows=Windows 11"
 :: Specify the Windows Build (Insider Previews mostly end with .1000 and Stable always with .1)
 set "VERSION=10.0.22621.1"
 
+:: Specify whether you want Enteprise G N instead of Enterprise G. Please note that you will need EnterpriseGN edition files instead of EnterpriseG edition files.
+set "EnterpriseGN=False"
+
 :: Specify whether the Image you are using is a Windows vNext Build (Canary Channel Builds)
 set "vNext=False"
 
@@ -28,23 +31,31 @@ if not exist temp mkdir temp >nul 2>&1
 :: In case any other Build than 22621.1 is defined, it will rename the file names and the strings inside the files.
 echo [+] Preparing sxs files [+]
 
-:: If set to false, Stable SXS files will be used.
+:: Prepare SXS files
 if "%vNext%"=="False" (
     copy files\sxs\* sxs\ >nul 2>&1
     ren "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~10.0.22621.1.mum" "Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.mum" >nul 2>&1
     ren "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~10.0.22621.1.cat" "Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.cat" >nul 2>&1
     powershell -Command "(Get-Content 'sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.mum') -replace '10\.0\.22621\.1','%VERSION%' | Set-Content 'sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.mum'" >nul 2>&1
     powershell -Command "(Get-Content 'sxs\1.xml') -replace '10\.0\.22621\.1','%VERSION%' | Set-Content 'sxs\1.xml'" >nul 2>&1
-    echo.
 )
 
-:: If set to true, vNext SXS files will be used.
 if "%vNext%"=="True" (
     copy files\sxs\vNext\* sxs\ >nul 2>&1
     ren "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~10.0.22621.1.mum" "Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.mum" >nul 2>&1
     ren "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~10.0.22621.1.cat" "Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.cat" >nul 2>&1
     powershell -Command "(Get-Content 'sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.mum') -replace '10\.0\.22621\.1','%VERSION%' | Set-Content 'sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.mum'" >nul 2>&1
     powershell -Command "(Get-Content 'sxs\1.xml') -replace '10\.0\.22621\.1','%VERSION%' | Set-Content 'sxs\1.xml'" >nul 2>&1
+)
+echo.
+
+:: Prepare SXS files for EnterpriseGN
+if "%EnterpriseGN%"=="True" (
+    copy files\sxs\vNext\* sxs\ >nul 2>&1
+    ren "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.mum" "Microsoft-Windows-EnterpriseGNEdition~31bf3856ad364e35~amd64~~%VERSION%.mum" >nul 2>&1
+    ren "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.cat" "Microsoft-Windows-EnterpriseGNEdition~31bf3856ad364e35~amd64~~%VERSION%.cat" >nul 2>&1
+    powershell -Command "(Get-Content 'sxs\Microsoft-Windows-EnterpriseGNEdition~31bf3856ad364e35~amd64~~%VERSION%.mum') -replace 'EnterpriseG','EnterpriseGN' | Set-Content 'sxs\Microsoft-Windows-EnterpriseGNEdition~31bf3856ad364e35~amd64~~%VERSION%.mum'" >nul 2>&1
+    powershell -Command "(Get-Content 'sxs\1.xml') -replace 'EnterpriseG','EnterpriseGN' | Set-Content 'sxs\1.xml'" >nul 2>&1
     echo.
 )
 
@@ -53,8 +64,8 @@ echo [+] Mounting Image [+]
 dism /mount-wim /wimfile:install.wim /index:1 /mountdir:mount || exit /b 1 >nul 2>&1
 echo.
 
-:: Remove Professional Packages and add EnterpriseG Packages
-echo [+] Converting SKU to EnterpriseG [+] 
+:: Remove Professional Packages and add EnterpriseG or EnterpriseGN Packages
+echo [+] Converting SKU [+] 
 dism /scratchdir:"%~dp0temp" /image:mount /apply-unattend:sxs\1.xml || exit /b 1 >nul 2>&1
 echo.
 
@@ -64,14 +75,29 @@ dism /scratchdir:"%~dp0temp" /image:mount /add-package:lp || exit /b 1 >nul 2>&1
 echo.
 
 del mount\Windows\*.xml >nul 2>&1
-copy mount\Windows\servicing\Editions\EnterpriseGEdition.xml mount\Windows\EnterpriseG.xml >nul 2>&1
+if "%EnterpriseGN%"=="False" (
+    copy mount\Windows\servicing\Editions\EnterpriseGEdition.xml mount\Windows\EnterpriseG.xml >nul 2>&1
+)
+
+if "%EnterpriseGN%"=="True" (
+    copy mount\Windows\servicing\Editions\EnterpriseGNEdition.xml mount\Windows\EnterpriseGN.xml >nul 2>&1
+)
 echo.
 
-:: Set Windows Version to EnterpriseG
-echo [+] Setting SKU To EnterpriseG [+] 
-dism /scratchdir:"%~dp0temp" /image:mount /apply-unattend:mount\Windows\EnterpriseG.xml || exit /b 1 >nul 2>&1
-dism /scratchdir:"%~dp0temp" /image:mount /set-productkey:YYVX9-NTFWV-6MDM3-9PT4T-4M68B || exit /b 1 >nul 2>&1
-dism /scratchdir:"%~dp0temp" /image:mount /get-currentedition || exit /b 1 >nul 2>&1 
+:: Set Windows Version to EnterpriseG or EnterpriseGN
+if "%EnterpriseGN%"=="False" (
+    echo [+] Setting SKU to EnterpriseG [+] 
+    dism /scratchdir:"%~dp0temp" /image:mount /apply-unattend:mount\Windows\EnterpriseG.xml || exit /b 1 >nul 2>&1
+    dism /scratchdir:"%~dp0temp" /image:mount /set-productkey:YYVX9-NTFWV-6MDM3-9PT4T-4M68B || exit /b 1 >nul 2>&1
+    dism /scratchdir:"%~dp0temp" /image:mount /get-currentedition || exit /b 1 >nul 2>&1 
+)
+
+if "%EnterpriseGN%"=="True" (
+    echo [+] Setting SKU to EnterpriseGN [+] 
+    dism /scratchdir:"%~dp0temp" /image:mount /apply-unattend:mount\Windows\EnterpriseGN.xml || exit /b 1 >nul 2>&1
+    dism /scratchdir:"%~dp0temp" /image:mount /set-productkey:44RPN-FTY23-9VTTB-MP9BX-T84FV || exit /b 1 >nul 2>&1
+    dism /scratchdir:"%~dp0temp" /image:mount /get-currentedition || exit /b 1 >nul 2>&1 
+)
 echo.
 
 :: Load Registry Hive
@@ -134,7 +160,14 @@ echo.
 
 :: Add License to Image
 echo [+] Adding License/EULA [+] 
-copy files\License\license.rtf mount\Windows\System32\Licenses\neutral\_Default\EnterpriseG\license.rtf >nul 2>&1
+if "%EnterpriseGN%"=="False" (
+    copy files\License\license.rtf mount\Windows\System32\Licenses\neutral\_Default\EnterpriseG\license.rtf >nul 2>&1
+)
+
+if "%EnterpriseGN%"=="True" (
+    mkdir mount\Windows\System32\Licenses\neutral\_Default\EnterpriseGN >nul 2>&1
+    copy files\License\license.rtf mount\Windows\System32\Licenses\neutral\_Default\EnterpriseGN\license.rtf >nul 2>&1
+)
 echo.
 
 :: If set to true, WIM will be compressed to ESD to save storage
@@ -147,18 +180,24 @@ if "%ActivateWindows%"=="True" (
 )
 
 :: Save all Changes and unmount Image
-echo [+] Saving and unmounting EnterpriseG Image [+] 
+echo [+] Saving and unmounting Install.wim Image [+] 
 dism /unmount-wim /mountdir:mount /commit || exit /b 1 >nul 2>&1
 echo.
 
-:: Optimize new Install.wim Image containing EnterpriseG
-echo [+] Optimizing EnterpriseG Image [+] 
+:: Optimize new Install.wim Image
+echo [+] Optimizing Install.wim Image [+] 
 files\wimlib-imagex optimize install.wim >nul 2>&1
 echo.
 
 :: Set WIM infos
-echo [+] Setting appropriate WIM Infos [+] 
-files\wimlib-imagex info install.wim 1 --image-property NAME="%Windows% EnterpriseG" --image-property DESCRIPTION="%Windows% EnterpriseG" --image-property FLAGS="EnterpriseG" --image-property DISPLAYNAME="%Windows% Enterprise G" --image-property DISPLAYDESCRIPTION="%Windows% Enterprise G" >nul 2>&1
+echo [+] Setting appropriate WIM Infos [+]
+if "%EnterpriseGN%"=="False" (
+    files\wimlib-imagex info install.wim 1 --image-property NAME="%Windows% EnterpriseG" --image-property DESCRIPTION="%Windows% EnterpriseG" --image-property FLAGS="EnterpriseG" --image-property DISPLAYNAME="%Windows% Enterprise G" --image-property DISPLAYDESCRIPTION="%Windows% Enterprise G" >nul 2>&1
+)
+
+if "%EnterpriseGN%"=="True" (
+    files\wimlib-imagex info install.wim 1 --image-property NAME="%Windows% EnterpriseGN" --image-property DESCRIPTION="%Windows% EnterpriseGN" --image-property FLAGS="EnterpriseGN" --image-property DISPLAYNAME="%Windows% Enterprise GN" --image-property DISPLAYDESCRIPTION="%Windows% Enterprise GN" >nul 2>&1
+)
 echo.
 
 if "%DisableCompatibilityCheck%"=="True" (
@@ -204,10 +243,19 @@ if exist mount rmdir /s /q mount >nul 2>&1
 if exist temp rmdir /s /q temp >nul 2>&1
 if exist "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.mum" del "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.mum" >nul 2>&1
 if exist "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.cat" del "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.cat" >nul 2>&1
+if exist "sxs\Microsoft-Windows-EnterpriseGNEdition~31bf3856ad364e35~amd64~~%VERSION%.mum" del "sxs\Microsoft-Windows-EnterpriseGNEdition~31bf3856ad364e35~amd64~~%VERSION%.mum" >nul 2>&1
+if exist "sxs\Microsoft-Windows-EnterpriseGNEdition~31bf3856ad364e35~amd64~~%VERSION%.cat" del "sxs\Microsoft-Windows-EnterpriseGNEdition~31bf3856ad364e35~amd64~~%VERSION%.cat" >nul 2>&1
 if exist "sxs\1.xml" del "sxs\1.xml" >nul 2>&1
 echo.
 
 :: Script end
-echo [+] EnterpriseG is ready [+] 
+if "%EnterpriseGN%"=="False" (
+    echo [+] EnterpriseG is ready [+] 
+)
+
+if "%EnterpriseGN%"=="True" (
+    echo [+] EnterpriseGN is ready [+] 
+)
+
 pause
 exit
