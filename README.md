@@ -43,7 +43,8 @@ Run ```Build.cmd``` and let the magic happen!
 - ```True```: Disable checks for compatible hardware (TPM, CPU, RAM, Storage, Secure Boot etc.)
 - ```False```: Windows will check if your PC is compatible with this Version of Windows ```Default```
 
-> You can check **[here](https://learn.microsoft.com/en-us/windows/whats-new/windows-11-requirements)** if your PC is compatible with the latest version of Windows.
+> You can check **[here](https://learn.microsoft.com/en-us/windows/whats-new/windows-11-requirements)** if your PC is compatible with the latest version of Windows. Note that you need to add the boot.wim to the EnterpriseG folder in order to apply properly.
+
 ## WimToESD 
 
 - ```True```: Script will compress Install.wim to Install.esd - This will require more time and resources.
