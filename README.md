@@ -38,6 +38,12 @@ Run ```Build.cmd``` and let the magic happen!
 - ```True```: Script will add additional registry keys to hide Recommended Section, turn off GameDVR etc.
 - ```False```: Script wont add additional registry keys to hide Recommended Section, turn off GameDVR etc. ```Default```
 
+## DisableCompatibilityCheck
+
+- ```True```: Disable checks for compatible hardware (TPM, CPU, RAM, Storage, Secure Boot etc.)
+- ```False```: Windows will check if your PC is compatible with this Version of Windows ```Default```
+
+> You can check **[here](https://learn.microsoft.com/en-us/windows/whats-new/windows-11-requirements)** if your PC is compatible with the latest version of Windows.
 ## WimToESD 
 
 - ```True```: Script will compress Install.wim to Install.esd - This will require more time and resources.
