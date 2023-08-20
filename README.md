@@ -38,6 +38,8 @@ Run `Build.cmd` and let the magic happen!
 - `True`: Adjust script to build **EnterpriseGN** instead of EnterpriseG
 - `False`: Adjust script to build **EnterpriseG** `Default`
 
+> Please note that this will require `Microsoft-Windows-EditionSpecific-EnterpriseGN-Package.ESD` instead of `Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD`
+
 ## vNext
 
 - `True`: Recommended for **Canary** Channel
