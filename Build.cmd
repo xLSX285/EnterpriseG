@@ -100,6 +100,14 @@ if "%EnterpriseGN%"=="True" (
 )
 echo.
 
+if "%EnterpriseGN%"=="True" (
+    echo [+] Removing Windows Media Player [+] 
+    dism /scratchdir:"%~dp0temp" /image:mount /Disable-Feature /FeatureName:MediaPlayback >nul 2>&1
+    dism /scratchdir:"%~dp0temp" /image:mount /Disable-Feature /FeatureName:WindowsMediaPlayer >nul 2>&1
+    dism /scratchdir:"%~dp0temp" /image:mount /Remove-Capability /CapabilityName:Media.WindowsMediaPlayer~~~~0.0.12.0 >nul 2>&1
+)
+echo.
+
 :: Load Registry Hive
 echo [+] Loading Registry Hive [+] 
 reg load HKLM\zNTUSER mount\Users\Default\ntuser.dat >nul 2>&1
