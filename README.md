@@ -38,8 +38,8 @@ Run `Build.cmd` and let the magic happen!
 
 ## vNext
 
-- `True`: Recommended for **Canary** Channel
-- `False`: Recommended for **Stable**, **Release Preview**, **Beta** & **Dev** Channel `Default`
+- `True`: Recommended for **Canary** Channel Builds
+- `False`: Recommended for **Stable**, **Release Preview**, **Beta** & **Dev** Channel Builds `Default`
 
 ## ActivateWindows
 
