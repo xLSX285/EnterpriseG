@@ -75,5 +75,6 @@ Run `Build.cmd` and let the magic happen!
 
 # TODO
 - More script optimizations!
+- Setting option to remove all inbox apps
 - Please feel free to let me you know if you have any ideas.
 
