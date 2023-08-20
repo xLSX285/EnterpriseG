@@ -23,6 +23,8 @@ Build Windows Enterprise G with ease!
 
 Run ```Build.cmd``` and let the magic happen!
 
+# Build.cmd settings
+
 ## VERSION
 
 - Specify your Windows Build Number
