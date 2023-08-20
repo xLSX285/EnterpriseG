@@ -51,7 +51,6 @@ echo.
 
 :: Prepare SXS files for EnterpriseGN
 if "%EnterpriseGN%"=="True" (
-    copy files\sxs\vNext\* sxs\ >nul 2>&1
     ren "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.mum" "Microsoft-Windows-EnterpriseGNEdition~31bf3856ad364e35~amd64~~%VERSION%.mum" >nul 2>&1
     ren "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.cat" "Microsoft-Windows-EnterpriseGNEdition~31bf3856ad364e35~amd64~~%VERSION%.cat" >nul 2>&1
     powershell -Command "(Get-Content 'sxs\Microsoft-Windows-EnterpriseGNEdition~31bf3856ad364e35~amd64~~%VERSION%.mum') -replace 'EnterpriseG','EnterpriseGN' | Set-Content 'sxs\Microsoft-Windows-EnterpriseGNEdition~31bf3856ad364e35~amd64~~%VERSION%.mum'" >nul 2>&1
@@ -72,6 +71,7 @@ echo.
 :: Adding Language Pack
 echo [+] Adding Language Pack [+] 
 dism /scratchdir:"%~dp0temp" /image:mount /add-package:lp || exit /b 1 >nul 2>&1
+
 echo.
 
 del mount\Windows\*.xml >nul 2>&1
