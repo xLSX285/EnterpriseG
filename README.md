@@ -11,7 +11,7 @@
 # How to manually reconstruct EnterpriseG
 
 - Extract files `250+` inside `Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD` to `sxs`
-- Dxtract files `10000+` inside `Microsoft-Windows-Client-LanguagePack-Package-amd64-en-us.esd` to `lp`
+- Extract files `10000+` inside `Microsoft-Windows-Client-LanguagePack-Package-amd64-en-us.esd` to `lp`
 
 > You can download both .ESD files through **[UUP Dump](https://uupdump.net)**.
 
