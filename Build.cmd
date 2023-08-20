@@ -1,6 +1,9 @@
 @echo off
 pushd "%~dp0" >nul 2>&1
 
+:: Set Windows Version
+set "Windows=Windows 11"
+
 :: Specify the Windows Build (Insider Previews mostly end with .1000 and Stable always with .1)
 set "VERSION=10.0.22621.1"
 
@@ -9,6 +12,9 @@ set "vNext=False"
 
 :: Further Registry Tweaks to disable GameDVR, Recommended Section etc.
 set "AdvancedTweaks=False"
+
+:: Disable compatibility checks for TPM, CPU, Disk, RAM and Secure Boot. Please note that you need to copy the boot.wim to the EnterpriseG folder too for this option.
+set "DisableCompatibilityCheck"=False"
 
 :: Pre-Active Windows using KMS38 during setup/installation
 set "ActivateWindows=False"
@@ -73,6 +79,7 @@ echo [+] Loading Registry Hive [+]
 reg load HKLM\zNTUSER mount\Users\Default\ntuser.dat >nul 2>&1
 reg load HKLM\zSOFTWARE mount\Windows\System32\config\SOFTWARE >nul 2>&1
 reg load HKLM\zSYSTEM mount\Windows\System32\config\SYSTEM >nul 2>&1
+reg load HKLM\zDEFAULT mount\Windows\System32\config\default >nul 2>&1
 echo.
 
 :: Apply Registry Keys to Registry Hive
@@ -82,9 +89,8 @@ echo [+] Applying Registry Keys [+]
 reg Add "HKLM\zSOFTWARE\Microsoft\PolicyManager\current\device\Accounts" /v "AllowMicrosoftAccountSignInAssistant" /t REG_DWORD /d "1" /f >nul 2>&1
 :: Fix Windows Security
 reg add "HKLM\zSYSTEM\ControlSet001\Control\CI\Policy" /v "VerifiedAndReputablePolicyState" /t REG_DWORD /d 0 /f >nul 2>&1
-:: Add Contoso branding
-reg add "HKLM\zSOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionSubManufacturer /t REG_SZ /d "Contoso Corporation" /f
-reg add "HKLM\zSOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionSubstring /t REG_SZ /d "Contoso" /f
+:: Add Producer branding
+reg add "HKLM\zSOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionSubManufacturer /t REG_SZ /d "Microsoft Corporation" /f
 
 if "%AdvancedTweaks%"=="True" (
     :: Turn off automatic updates
@@ -103,6 +109,19 @@ if "%AdvancedTweaks%"=="True" (
     :: Turn off GameDVR
     reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\GameDVR" /v "AllowGameDVR" /t REG_DWORD /d "0" /f >nul 2>&1
 )
+
+if "%DisableCompatibilityCheck%"=="True" (
+    Reg add "HKLM\zDEFAULT\Control Panel\UnsupportedHardwareNotificationCache" /v "SV1" /t REG_DWORD /d "0" /f >nul 2>&1
+	Reg add "HKLM\zDEFAULT\Control Panel\UnsupportedHardwareNotificationCache" /v "SV2" /t REG_DWORD /d "0" /f >nul 2>&1
+	Reg add "HKLM\zNTUSER\Control Panel\UnsupportedHardwareNotificationCache" /v "SV1" /t REG_DWORD /d "0" /f >nul 2>&1
+	Reg add "HKLM\zNTUSER\Control Panel\UnsupportedHardwareNotificationCache" /v "SV2" /t REG_DWORD /d "0" /f >nul 2>&1
+	Reg add "HKLM\zSYSTEM\Setup\LabConfig" /v "BypassCPUCheck" /t REG_DWORD /d "1" /f >nul 2>&1
+	Reg add "HKLM\zSYSTEM\Setup\LabConfig" /v "BypassRAMCheck" /t REG_DWORD /d "1" /f >nul 2>&1
+	Reg add "HKLM\zSYSTEM\Setup\LabConfig" /v "BypassSecureBootCheck" /t REG_DWORD /d "1" /f >nul 2>&1
+	Reg add "HKLM\zSYSTEM\Setup\LabConfig" /v "BypassStorageCheck" /t REG_DWORD /d "1" /f >nul 2>&1
+	Reg add "HKLM\zSYSTEM\Setup\LabConfig" /v "BypassTPMCheck" /t REG_DWORD /d "1" /f >nul 2>&1
+	Reg add "HKLM\zSYSTEM\Setup\MoSetup" /v "AllowUpgradesWithUnsupportedTPMOrCPU" /t REG_DWORD /d "1" /f >nul 2>&1
+)
 echo.
 
 :: Unload Registry Hive
@@ -110,6 +129,7 @@ echo [+] Unloading Registry Hive [+]
 reg unload HKLM\zNTUSER >nul 2>&1
 reg unload HKLM\zSOFTWARE >nul 2>&1
 reg unload HKLM\zSYSTEM >nul 2>&1
+reg unload HKLM\zDEFAULT >nul 2>&1
 echo.
 
 :: Add License to Image
@@ -138,8 +158,39 @@ echo.
 
 :: Set WIM infos
 echo [+] Setting appropriate WIM Infos [+] 
-files\wimlib-imagex info install.wim 1 --image-property NAME="Windows 11 EnterpriseG" --image-property DESCRIPTION="Windows 11 EnterpriseG" --image-property FLAGS="EnterpriseG" --image-property DISPLAYNAME="Windows 11 Enterprise G" --image-property DISPLAYDESCRIPTION="Windows 11 Enterprise G" >nul 2>&1
+files\wimlib-imagex info install.wim 1 --image-property NAME="%Windows% EnterpriseG" --image-property DESCRIPTION="%Windows% EnterpriseG" --image-property FLAGS="EnterpriseG" --image-property DISPLAYNAME="%Windows% Enterprise G" --image-property DISPLAYDESCRIPTION="%Windows% Enterprise G" >nul 2>&1
 echo.
+
+if "%DisableCompatibilityCheck%"=="True" (
+    :: Mount boot.wim
+    echo [+] Mounting boot.wim Image [+]
+    dism /mount-wim /wimfile:boot.wim /index:2 /mountdir:mount || exit /b 1 >nul 2>&1
+
+    :: Load boot.img Registry Hive
+    echo [+] Loading Registry Hive [+] 
+    reg load HKLM\zNTUSER mount\Users\Default\ntuser.dat >nul 2>&1
+    reg load HKLM\zSYSTEM mount\Windows\System32\config\SYSTEM >nul 2>&1
+    reg load HKLM\zDEFAULT mount\Windows\System32\config\default >nul 2>&1
+
+    :: Apply registry keys to disable compatibility checks
+    echo [+] Applying Registry Keys [+]
+    Reg add "HKLM\zDEFAULT\Control Panel\UnsupportedHardwareNotificationCache" /v "SV1" /t REG_DWORD /d "0" /f >nul 2>&1
+	Reg add "HKLM\zDEFAULT\Control Panel\UnsupportedHardwareNotificationCache" /v "SV2" /t REG_DWORD /d "0" /f >nul 2>&1
+	Reg add "HKLM\zNTUSER\Control Panel\UnsupportedHardwareNotificationCache" /v "SV1" /t REG_DWORD /d "0" /f >nul 2>&1
+	Reg add "HKLM\zNTUSER\Control Panel\UnsupportedHardwareNotificationCache" /v "SV2" /t REG_DWORD /d "0" /f >nul 2>&1
+	Reg add "HKLM\zSYSTEM\Setup\LabConfig" /v "BypassCPUCheck" /t REG_DWORD /d "1" /f >nul 2>&1
+	Reg add "HKLM\zSYSTEM\Setup\LabConfig" /v "BypassRAMCheck" /t REG_DWORD /d "1" /f >nul 2>&1
+	Reg add "HKLM\zSYSTEM\Setup\LabConfig" /v "BypassSecureBootCheck" /t REG_DWORD /d "1" /f >nul 2>&1
+	Reg add "HKLM\zSYSTEM\Setup\LabConfig" /v "BypassStorageCheck" /t REG_DWORD /d "1" /f >nul 2>&1
+	Reg add "HKLM\zSYSTEM\Setup\LabConfig" /v "BypassTPMCheck" /t REG_DWORD /d "1" /f >nul 2>&1
+	Reg add "HKLM\zSYSTEM\Setup\MoSetup" /v "AllowUpgradesWithUnsupportedTPMOrCPU" /t REG_DWORD /d "1" /f >nul 2>&1
+
+    :: Unload boot.wim Registry Hive
+    echo [+] Unloading Registry Hive [+] 
+    reg unload HKLM\zNTUSER >nul 2>&1
+    reg unload HKLM\zSYSTEM >nul 2>&1
+    reg unload HKLM\zDEFAULT >nul 2>&1
+)
 
 :: If set to true, WIM will be compressed to ESD to save storage
 if "%WimToESD%"=="True" (
