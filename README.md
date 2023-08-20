@@ -33,6 +33,11 @@ Run `Build.cmd` and let the magic happen!
 
 > All current **Windows 10**, **Windows 1**1 and **Windows vNext** Builds work with this script. `As of 08/19/23`
 
+# EnterpriseGN
+
+- `True`: Adjust script to build **EnterpriseGN** instead of EnterpriseG
+- `False`: Adjust script to build **EnterpriseG** `Default`
+
 ## vNext
 
 - `True`: Recommended for **Canary** Channel
