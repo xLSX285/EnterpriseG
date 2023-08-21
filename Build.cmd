@@ -17,7 +17,7 @@ set "vNext=False"
 set "AdvancedTweaks=False"
 
 :: Disable compatibility checks for TPM, CPU, Disk, RAM and Secure Boot. Please note that you need to copy the boot.wim to the EnterpriseG folder too for this option.
-set "DisableCompatibilityCheck"=False"
+set "DisableCompatibilityCheck=False"
 
 :: Pre-Active Windows using KMS38 during setup/installation
 set "ActivateWindows=False"
