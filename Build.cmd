@@ -239,6 +239,7 @@ if "%DisableCompatibilityCheck%"=="True" (
     reg unload HKLM\zDEFAULT >nul 2>&1
 
     :: Unmount boot.wim
+    echo [+] Unmounting boot.wim Image [+] 
     dism /unmount-wim /mountdir:mount /commit >nul 2>&1
 )
 
