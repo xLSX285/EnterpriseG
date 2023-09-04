@@ -169,6 +169,7 @@ echo.
 :: Add License to Image
 echo [+] Adding License/EULA [+] 
 if "%EnterpriseGN%"=="False" (
+    mkdir mount\Windows\System32\Licenses\neutral\_Default\EnterpriseG >nul 2>&1
     copy files\License\license.rtf mount\Windows\System32\Licenses\neutral\_Default\EnterpriseG\license.rtf >nul 2>&1
 )
 
