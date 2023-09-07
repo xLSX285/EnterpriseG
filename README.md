@@ -1,13 +1,5 @@
 # Windows Enterprise G Building Script
 
-<p align="center">
-  <a>Prebuilt EnterpriseG ISOs</a>
-</p>
-
-<p align="center">
-  <a href="https://drive.google.com/file/d/1eKrBLz8A1-M0C4OZ3eb2yRONASiTvx5h/view?usp=sharing">Stable</a> | <a href="https://drive.google.com/file/d/1SNct2pJR2Vc9K4ZqCHeAK2d1XX2zkwZy/view?usp=sharing">Dev</a> | <a href="https://drive.google.com/file/d/1UES5If49Gw678M7sPJtG3Jsf3ByM_3Mp/view?usp=sharing">Canary</a>
-</p>
-
 # How to reconstruct EnterpriseG
 
 - Extract files `250+` inside `Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD` to `sxs`
