@@ -29,34 +29,10 @@ Run `Build.cmd` and let the magic happen!
 - Specify the Windows Build Number
 > All current **Windows 10**, **Windows 1**1 and **Windows vNext** Builds work with this script. `As of 08/19/23`
 
-## EnterpriseGN (Not recommended)
-
-- `True`: Adjust script to build **EnterpriseGN** instead of EnterpriseG
-- `False`: Adjust script to build **EnterpriseG** `Default`
-
-> Please note that this will require `Microsoft-Windows-EditionSpecific-EnterpriseGN-Package.ESD` instead of `Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD` - Be aware that Cumulative Updates cannot be installed online through Windows Updates and must be reconstructed and installed offline! It's better to stick with EnterpriseG since it can be updated online (with exception being Insider Previews, they can be updated only through inplace upgrades)
-
 ## vNext
 
 - `True`: Recommended for **Canary** Channel Builds
 - `False`: Recommended for **Stable**, **Release Preview**, **Beta** & **Dev** Channel Builds `Default`
-
-## ActivateWindows
-
-- ```True```: Will copy activation script onto the Image pre-activating Windows upon installation using KMS38
-- ```False```: Windows will not be activated ```Default```
-
-## AdvancedTweaks 
-
-- `True`: Script will add additional registry keys to hide Recommended Section, turn off GameDVR etc.
-- `False`: Script wont add additional registry keys to hide Recommended Section, turn off GameDVR etc. `Default`
-
-## DisableCompatibilityCheck
-
-- `True`: Disable checks for compatible hardware (TPM, CPU, RAM, Storage, Secure Boot etc.)
-- `False`: Windows will check if your PC is compatible with this Version of Windows `Default`
-
-> You can check **[here](https://learn.microsoft.com/en-us/windows/whats-new/windows-11-requirements)** if your PC is compatible with the latest version of Windows. Note that you need to add the boot.wim to the EnterpriseG folder in order to apply properly.
 
 ## WimToESD 
 
