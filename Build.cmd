@@ -4,13 +4,13 @@ pushd "%~dp0" >nul 2>&1
 :: Set Windows Version
 set "Windows=Windows 11"
 
-:: Specify the Windows Build (Insider Previews mostly end with .1000 and Stable always with .1)
+:: Specify the Windows Build (Insider .1000 / Stable .1)
 set "VERSION=10.0.22621.1"
 
 :: Specify whether the Image you are using is a Windows vNext Build (Canary Channel Builds)
 set "vNext=False"
 
-:: Compress Image from .WIM to .ESD to reduce size 
+:: Compress Image .ESD to reduce size 
 set "WimToESD=False"
 
 if not exist mount mkdir mount >nul 2>&1
@@ -107,7 +107,7 @@ echo Setting WIM Infos
 files\wimlib-imagex info install.wim 1 --image-property NAME="%Windows% EnterpriseG" --image-property DESCRIPTION="%Windows% EnterpriseG" --image-property FLAGS="EnterpriseG" --image-property DISPLAYNAME="%Windows% Enterprise G" --image-property DISPLAYDESCRIPTION="%Windows% Enterprise G" >nul 2>&1
 echo.
 
-:: If set to true, WIM will be compressed to ESD to save storage
+:: If set to true, WIM will be compressed to ESD to reduce size
 if "%WimToESD%"=="True" (
     echo Converting WIM to ESD
     dism /Export-Image /SourceImageFile:install.wim /SourceIndex:1 /DestinationImageFile:install.esd /Compress:Recovery >nul 2>&1
