@@ -1,13 +1,15 @@
 @echo off
 pushd "%~dp0" >nul 2>&1
 
+:: Do not run unless Install.wim, EnterpriseG Edition files and language pack are in place.
+
 :: Set Windows Version
 set "Windows=Windows 11"
 
-:: Specify the Windows Build (Insider .1000 / Stable .1)
+:: Specify the Windows Build (Insider .1000/1001 / Stable .1)
 set "VERSION=10.0.22621.1"
 
-:: Specify whether the Image you are using is a Windows vNext Build (Canary Channel Builds)
+:: Specify whether the Image thats being used is a Windows vNext Build
 set "vNext=False"
 
 :: Compress Image .ESD to reduce size 
@@ -40,7 +42,7 @@ echo Mounting Image
 dism /mount-wim /wimfile:install.wim /index:1 /mountdir:mount || exit /b 1 >nul 2>&1
 echo.
 
-:: Remove Professional Packages and add EnterpriseG Packages
+:: Update Packages
 echo Converting SKU
 dism /scratchdir:"%~dp0temp" /image:mount /apply-unattend:sxs\1.xml || exit /b 1 >nul 2>&1
 echo.
@@ -62,28 +64,24 @@ echo.
 
 :: Load Registry Hive
 echo Loading Registry Hive
-reg load HKLM\zNTUSER mount\Users\Default\ntuser.dat >nul 2>&1
 reg load HKLM\zSOFTWARE mount\Windows\System32\config\SOFTWARE >nul 2>&1
 reg load HKLM\zSYSTEM mount\Windows\System32\config\SYSTEM >nul 2>&1
-reg load HKLM\zDEFAULT mount\Windows\System32\config\default >nul 2>&1
 echo.
 
 :: Apply Registry Keys to Registry Hive
 echo Applying Registry Keys
 :: Add Microsoft Account support
 reg Add "HKLM\zSOFTWARE\Microsoft\PolicyManager\current\device\Accounts" /v "AllowMicrosoftAccountSignInAssistant" /t REG_DWORD /d "1" /f >nul 2>&1
-:: Fix Windows Security
-reg add "HKLM\zSYSTEM\ControlSet001\Control\CI\Policy" /v "VerifiedAndReputablePolicyState" /t REG_DWORD /d 0 /f >nul 2>&1
 :: Add Producer branding
 reg add "HKLM\zSOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionSubManufacturer /t REG_SZ /d "Microsoft Corporation" /f
+:: Fix Windows Security
+reg add "HKLM\zSYSTEM\ControlSet001\Control\CI\Policy" /v "VerifiedAndReputablePolicyState" /t REG_DWORD /d 0 /f >nul 2>&1
 echo.
 
 :: Unload Registry Hive
 echo Unloading Registry Hive 
-reg unload HKLM\zNTUSER >nul 2>&1
 reg unload HKLM\zSOFTWARE >nul 2>&1
 reg unload HKLM\zSYSTEM >nul 2>&1
-reg unload HKLM\zDEFAULT >nul 2>&1
 echo.
 
 :: Add License to Image
