@@ -9,8 +9,8 @@ set "Windows=Windows 11"
 :: Specify the Windows Build (Insider .1000/1001 / Stable .1)
 set "VERSION=10.0.22621.1"
 
-:: Specify whether the Image thats being used is a Windows vNext Build
-set "vNext=False"
+:: Specify the type of the Image being used. (Normal = 19041/22621 etc.. vNext = 25xxx+ Legacy = 17736 and older)
+set "Type=Normal"
 
 :: Compress Image .ESD to reduce size 
 set "WimToESD=False"
@@ -20,7 +20,7 @@ if not exist temp mkdir temp >nul 2>&1
 
 :: In case any other Build than 22621.1 is defined, it will rename the file names and the strings inside the files.
 echo Preparing SXS files
-if "%vNext%"=="False" (
+if "%Type%"=="Normal" (
     copy files\sxs\* sxs\ >nul 2>&1
     ren "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~10.0.22621.1.mum" "Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.mum" >nul 2>&1
     ren "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~10.0.22621.1.cat" "Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.cat" >nul 2>&1
@@ -28,8 +28,16 @@ if "%vNext%"=="False" (
     powershell -Command "(Get-Content 'sxs\1.xml') -replace '10\.0\.22621\.1','%VERSION%' | Set-Content 'sxs\1.xml'" >nul 2>&1
 )
 
-if "%vNext%"=="True" (
+if "%Type%"=="vNext" (
     copy files\sxs\vNext\* sxs\ >nul 2>&1
+    ren "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~10.0.22621.1.mum" "Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.mum" >nul 2>&1
+    ren "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~10.0.22621.1.cat" "Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.cat" >nul 2>&1
+    powershell -Command "(Get-Content 'sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.mum') -replace '10\.0\.22621\.1','%VERSION%' | Set-Content 'sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.mum'" >nul 2>&1
+    powershell -Command "(Get-Content 'sxs\1.xml') -replace '10\.0\.22621\.1','%VERSION%' | Set-Content 'sxs\1.xml'" >nul 2>&1
+)
+
+if "%Type%"=="Legacy" (
+    copy files\sxs\Legacy\* sxs\ >nul 2>&1
     ren "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~10.0.22621.1.mum" "Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.mum" >nul 2>&1
     ren "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~10.0.22621.1.cat" "Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.cat" >nul 2>&1
     powershell -Command "(Get-Content 'sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.mum') -replace '10\.0\.22621\.1','%VERSION%' | Set-Content 'sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~%VERSION%.mum'" >nul 2>&1
