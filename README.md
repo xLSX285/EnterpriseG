@@ -21,10 +21,11 @@ Run `Build.cmd` and let the magic happen!
 - Specify the Windows Build Number
 > All current **Windows 10**, **Windows 1**1 and **Windows vNext** Builds work with this script. `As of 08/19/23`
 
-## vNext
+## Type
 
-- `True`: Recommended for **Canary** Channel Builds
-- `False`: Recommended for **Stable**, **Release Preview**, **Beta** & **Dev** Channel Builds `Default`
+- `Normal`: Recommended to build EnterpriseG for 19041 - 23xxx `Default`
+- `vNext`: Recommended to build EnterpriseG for 25xxx+
+- `Legacy` Recommended to build EnterpriseG for 17736 and older
 
 ## WimToESD 
 
