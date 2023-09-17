@@ -12,13 +12,13 @@ Set-Location -Path $PSScriptRoot
 
 # Script config
 $Windows = "Windows 11"
-$Build = "25951.1000"
-$Type = "vNext"
-$WimToESD = "True"
-$RemoveApps = "True"
-$RemovePackages = "True"
-$DisableFeatures = "True"
-$ActivateWindows = "True"
+$Build = "22621.1"
+$Type = "Normal"
+$WimToESD = "False"
+$RemoveApps = "False"
+$RemovePackages = "False"
+$DisableFeatures = "False"
+$ActivateWindows = "False"
 Write-Host "----------------------------------------------"
 Write-Output "Loading configuration"
 Write-Output "- Windows: $Windows"
@@ -31,7 +31,7 @@ Write-Output "- DisableFeatures: $DisableFeatures"
 Write-Output "- ActivateWindows: $ActivateWindows"
 Write-Host "- Successfully loaded config.json"
 $config = (Get-Content "config.json" -Raw) | ConvertFrom-Json
-$unwantedProvisionnedPackages = $config.ProvisionnedPackagesToRemove
+$unwantedProvisionedPackages = $config.ProvisionedPackagesToRemove
 $unwantedWindowsPackages = $config.WindowsPackagesToRemove
 $unwantedWindowsFeatures = $config.WindowsFeaturesToDisable
 Write-Host ""
@@ -153,15 +153,15 @@ if ($ActivateWindows -eq "True") {
 
 if ($RemoveApps -eq "True") {
     Write-Host "----------------------------------------------"
-#Detecting provisionned app packages
+#Detecting Provisioned app packages
 	Write-Output "Removing inbox apps"
-	$detectedProvisionnedPackages = Get-AppxProvisionedPackage -Path $installImageFolder
+	$detectedProvisionedPackages = Get-AppxProvisionedPackage -Path $installImageFolder
 
-	#Removing unwanted provisionned app packages
-	foreach ($detectedProvisionnedPackage in $detectedProvisionnedPackages) {
-		foreach ($unwantedProvisionnedPackage in $unwantedProvisionnedPackages) {
-			if ($detectedProvisionnedPackage.PackageName.Contains($unwantedProvisionnedPackage)) {
-				Remove-AppxProvisionedPackage -Path $installImageFolder -PackageName $detectedProvisionnedPackage.PackageName -ErrorAction SilentlyContinue | Out-Null
+	#Removing unwanted Provisioned app packages
+	foreach ($detectedProvisionedPackage in $detectedProvisionedPackages) {
+		foreach ($unwantedProvisionedPackage in $unwantedProvisionedPackages) {
+			if ($detectedProvisionedPackage.PackageName.Contains($unwantedProvisionedPackage)) {
+				Remove-AppxProvisionedPackage -Path $installImageFolder -PackageName $detectedProvisionedPackage.PackageName -ErrorAction SilentlyContinue | Out-Null
 			}
 		}
 	}
