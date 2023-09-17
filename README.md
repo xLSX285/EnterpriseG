@@ -7,16 +7,16 @@
 
 > You can download both .ESD files through **[UUP Dump](https://uupdump.net)**.
 
-- Copy `install.wim` to the same directory as the `Build.cmd` file
+- Copy `install.wim` to the same directory as the `Build.ps1` file
 > Make sure your install.wim file contains `NO updates` and `only includes the Pro Edition` You can build a clean ISO containing the install.wim with no updates and Pro only through **[UUP Dump](https://uupdump.net)**. You find the `install.wim` inside the `sources` folder of your ISO.
 
-- Set your settings inside Build.cmd
+- Set your settings inside Build.ps1
 
-Run `Build.cmd` and let the magic happen!
+Run `Build.ps1` and let the magic happen!
 
 # Build.cmd settings
 
-## Version
+## Build
 
 - Specify the Windows Build Number
 > All current **Windows 10**, **Windows 1**1 and **Windows vNext** Builds work with this script. `As of 08/19/23`
@@ -31,6 +31,21 @@ Run `Build.cmd` and let the magic happen!
 
 - `True`: Script will compress Install.wim to Install.esd - This will require more time and resources.
 - `False`: Script wont compress Install.wim to Install.esd `Default`
+
+## RemoveApps
+
+- `True`: All inbox apps will be removed from the mounted image
+- `False`: All inbox apps will remain `Default`
+
+## RemovePackages
+
+- `True`: All safe to remove packages will be removed from the mounted image
+- `False`: All other packages will remain `Default`
+
+## DisableFeatures
+
+- `True`: All features will be disabled from the mounted image
+- `False`: All features will remain enabled `Default`
 
 # Known "issues" with EnterpriseG
 - `EnterpriseG` Insider Preview builds cannot be updated through Windows Update, you have to get another ISO and perform an inplace upgrade. - `Microsoft doesn't officially offer EnterpriseG as Edition. That's why.`
