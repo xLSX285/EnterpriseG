@@ -47,6 +47,20 @@ Run `Build.ps1` and let the magic happen!
 - `True`: All features will be disabled from the mounted image
 - `False`: All features will remain enabled `Default`
 
+# Config.json settings
+
+## ProvisionnedPackagesToRemove
+
+- List of Inbox apps that will be removed if set to true in build.ps1
+
+## WindowsPackagesToRemove
+
+- List of Windows packages that will be removed if set to true in build.ps1
+
+## WindowsFeaturesToDisable
+
+- List of features that will be removed if set to true in build.ps1
+
 # Known "issues" with EnterpriseG
 - `EnterpriseG` Insider Preview builds cannot be updated through Windows Update, you have to get another ISO and perform an inplace upgrade. - `Microsoft doesn't officially offer EnterpriseG as Edition to the public. That's why.`
 - Factory resetting Windows will display an `OOBE_EULA` error during setup. **[How to fix (step 3)](https://www.howto-connect.com/fix-oobeeula-error-something-went-wrong-windows-10-or-11/)**
