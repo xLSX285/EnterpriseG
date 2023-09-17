@@ -54,7 +54,7 @@ Run `Build.ps1` and let the magic happen!
 
 # Config.json settings
 
-## ProvisionnedPackagesToRemove
+## ProvisionedPackagesToRemove
 
 - List of Inbox apps that will be removed if set to true in build.ps1
 
