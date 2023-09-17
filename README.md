@@ -71,5 +71,5 @@ Run `Build.ps1` and let the magic happen!
 - More script optimizations!
 - Please feel free to let me you know if you have any ideas.
 
-` Please note that this project requires some basic knowledge. If you can't run the script, try **Set-ExecutionPolicy RemoteSigned** `
+` Please note that this project requires some basic knowledge. If you can't run the script, try: Set-ExecutionPolicy RemoteSigned `
 
