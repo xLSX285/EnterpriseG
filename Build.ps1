@@ -1,14 +1,24 @@
+# Check if the script is running with administrator privileges
+$isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+
+# If not running as administrator, restart the script with elevated privileges
+if (-Not $isAdmin) {
+    Start-Process powershell.exe -ArgumentList " -NoProfile -ExecutionPolicy Bypass -File $($MyInvocation.MyCommand.Path)" -Verb RunAs
+    exit
+}
+
 $startTime = Get-Date
 Set-Location -Path $PSScriptRoot
 
 # Script config
 $Windows = "Windows 11"
-$Build = "22621.1"
-$Type = "Normal"
-$WimToESD = "False"
-$RemoveApps = "False"
-$RemovePackages = "False"
-$DisableFeatures = "False"
+$Build = "25951.1000"
+$Type = "vNext"
+$WimToESD = "True"
+$RemoveApps = "True"
+$RemovePackages = "True"
+$DisableFeatures = "True"
+$ActivateWindows = "True"
 Write-Host "----------------------------------------------"
 Write-Output "Loading configuration"
 Write-Output "- Windows: $Windows"
@@ -18,6 +28,7 @@ Write-Output "- WimToESD: $WimToESD"
 Write-Output "- RemoveApps: $RemoveApps"
 Write-Output "- RemovePackages: $RemovePackages"
 Write-Output "- DisableFeatures: $DisableFeatures"
+Write-Output "- ActivateWindows: $ActivateWindows"
 Write-Host "- Successfully loaded config.json"
 $config = (Get-Content "config.json" -Raw) | ConvertFrom-Json
 $unwantedProvisionnedPackages = $config.ProvisionnedPackagesToRemove
@@ -127,6 +138,19 @@ Write-Host "- license.rtf"
 Write-Host "----------------------------------------------"
 Write-Host ""
 
+# If $ActivateWindows is set to true, compress the WIM to ESD to save storage
+if ($ActivateWindows -eq "True") {
+	Write-Host "----------------------------------------------"
+    Write-Host "Adding activation for Windows using KMS38"
+    $null = New-Item -ItemType Directory -Path "mount\Windows\Setup\Scripts" -Force | Out-Null
+    Copy-Item -Path "files\Scripts\MAS_AIO.cmd" -Destination "mount\Windows\Setup\Scripts\MAS_AIO.cmd" -Force | Out-Null
+	Write-Host "- MAS_AIO.cmd"
+    Copy-Item -Path "files\Scripts\SetupComplete.cmd" -Destination "mount\Windows\Setup\Scripts\SetupComplete.cmd" -Force | Out-Null
+	Write-Host "- SetupComplete.cmd"
+	Write-Host "----------------------------------------------"
+    Write-Host ""
+}
+
 if ($RemoveApps -eq "True") {
     Write-Host "----------------------------------------------"
 #Detecting provisionned app packages
@@ -235,3 +259,5 @@ Write-Host "----------------------------------------------"
 Write-Host "EnterpriseG completed in $($elapsedTime.TotalSeconds) seconds."
 Write-Host "----------------------------------------------"
 Write-Host ""
+pause
+exit
