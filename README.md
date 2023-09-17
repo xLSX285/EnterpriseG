@@ -47,6 +47,11 @@ Run `Build.ps1` and let the magic happen!
 - `True`: All features will be disabled from the mounted image
 - `False`: All features will remain enabled `Default`
 
+## ActivateWindows
+
+- `True`: Windows will be activated using KMS38 method
+- `False`: Windows wont be activated `Default`
+
 # Config.json settings
 
 ## ProvisionnedPackagesToRemove
