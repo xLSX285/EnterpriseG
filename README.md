@@ -14,7 +14,7 @@
 
 Run `Build.ps1` and let the magic happen!
 
-# Build.cmd settings
+# Build.ps1 settings
 
 ## Build
 
