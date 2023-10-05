@@ -24,7 +24,7 @@ Run `Build.ps1` and let the magic happen!
 ## Type
 - Type gets detected by the script automatically.
 - `Normal`: Recommended to build EnterpriseG for 19041 - 23xxx `Default`
-- `vNext`: Recommended to build EnterpriseG for 25xxx+
+- `vNext`: Recommended to build EnterpriseG for 25398+
 - `Legacy` Recommended to build EnterpriseG for 17736 and older
 
 ## WimToESD 
