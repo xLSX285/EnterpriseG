@@ -1,4 +1,4 @@
-# Windows Enterprise G Building Script
+# Windows Enterprise G Reconstruction Script
 
 # How to reconstruct EnterpriseG
 
