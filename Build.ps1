@@ -238,7 +238,7 @@ Write-Host ""
 Write-Host "----------------------------------------------"
 Write-Host "Setting WIM Infos"
 Write-Host ""
-& "files\wimlib-imagex" info install.wim 1 --image-property NAME="Windows $Windows EnterpriseG" --image-property DESCRIPTION="$Windows EnterpriseG" --image-property FLAGS="EnterpriseG" --image-property DISPLAYNAME="$Windows Enterprise G" --image-property DISPLAYDESCRIPTION="$Windows Enterprise G" | Out-Null
+& "files\wimlib-imagex" info install.wim 1 --image-property NAME="Windows $Windows EnterpriseG" --image-property DESCRIPTION="Windows $Windows EnterpriseG" --image-property FLAGS="EnterpriseG" --image-property DISPLAYNAME="Windows $Windows Enterprise G" --image-property DISPLAYDESCRIPTION="Windows $Windows Enterprise G" | Out-Null
 Write-Host "Name: Windows $Windows EnterpriseG"
 Write-Host "Description: Windows $Windows EnterpriseG"
 Write-Host "Flag: EnterpriseG"
