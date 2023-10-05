@@ -8,7 +8,7 @@
 > You can download both .ESD files through **UUP Dump**.
 
 - Copy `install.wim` to the same directory as the `Build.ps1` file
-> Make sure your install.wim file contains `NO updates` and `only includes the Pro Edition` You can build a clean ISO containing the install.wim with no updates and Pro only through **[UUP Dump](https://uupdump.net)**. You find the `install.wim` inside the `sources` folder of your ISO.
+> Make sure your install.wim file contains `NO updates` and `only includes the Pro Edition` You can build a clean ISO containing the install.wim with no updates and Pro only through **UUP Dump**. You find the `install.wim` inside the `sources` folder of your ISO.
 
 - Set your settings inside `Build.ps1` and `config.json`
 
