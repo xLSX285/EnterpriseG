@@ -1,7 +1,4 @@
-# Check if the script is running with administrator privileges
 $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-
-# If not running as administrator, restart the script with elevated privileges
 if (-Not $isAdmin) {
     Start-Process powershell.exe -ArgumentList " -NoProfile -ExecutionPolicy Bypass -File $($MyInvocation.MyCommand.Path)" -Verb RunAs
     exit
@@ -9,6 +6,15 @@ if (-Not $isAdmin) {
 
 $startTime = Get-Date
 Set-Location -Path $PSScriptRoot
+
+$requiredFiles = @("install.wim", "Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD", "Microsoft-Windows-Client-LanguagePack-Package-amd64-en-us.esd")
+$missingFiles = $requiredFiles | Where-Object { -not (Test-Path $_) }
+
+if ($missingFiles) {
+    Write-Host "Required files are missing: $($missingFiles -join ', ')"
+    pause
+    exit 1
+}
 
 # Script config
 $imageInfo = Get-WindowsImage -ImagePath "install.wim" -Index 1
@@ -54,9 +60,21 @@ Write-Host "- DestinationPath: $DestinationPath"
 Write-Host "----------------------------------------------"
 Write-Host ""
 
-if (!(Test-Path -Path "mount" -PathType Container)) {
-    New-Item -Path "mount" -ItemType Directory | Out-Null
+$folders = @("mount", "lp", "sxs")
+foreach ($folder in $folders) {
+    if (!(Test-Path -Path $folder -PathType Container)) {
+        New-Item -Path $folder -ItemType Directory | Out-Null
+    }
 }
+
+Write-Host "----------------------------------------------"
+Write-Host "Extracting language pack & Edition files"
+Write-Host "- Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD"
+.\files\7z.exe x Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD -osxs | Out-Null
+Write-Host "- Microsoft-Windows-Client-LanguagePack-Package-amd64-en-us.esd"
+.\files\7z.exe x Microsoft-Windows-Client-LanguagePack-Package-amd64-en-us.esd -olp | Out-Null
+Write-Host "----------------------------------------------"
+Write-Host ""
 
 Write-Host "----------------------------------------------"
 Write-Host "Mounting Image"
@@ -259,10 +277,12 @@ if ($WimToESD -eq "True") {
 }
 
 # Clean-Up - last final touches
-if (Test-Path "mount") { Remove-Item "mount" -Recurse -Force | Out-Null }
-if (Test-Path "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~$Build.mum") { Remove-Item "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~$Build.mum" | Out-Null }
-if (Test-Path "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~$Build.cat") { Remove-Item "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~$Build.cat" | Out-Null }
-if (Test-Path "sxs\1.xml") { Remove-Item "sxs\1.xml" | Out-Null }
+$foldersToRemove = @("mount", "lp", "sxs")
+foreach ($folder in $foldersToRemove) {
+    if (Test-Path $folder) {
+        Remove-Item $folder -Recurse -Force | Out-Null
+    }
+}
 Write-Host ""
 
 # Script end
