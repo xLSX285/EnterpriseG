@@ -16,7 +16,6 @@ if ($missingFiles) {
     exit 1
 }
 
-# Script config
 $imageInfo = Get-WindowsImage -ImagePath "install.wim" -Index 1
 $Windows = ($imageInfo.ImageName -split ' ')[1]
 $Build = $imageInfo.Version
@@ -93,14 +92,12 @@ if ($Type -in "Normal", "vNext", "Legacy") {
     (Get-Content "sxs\1.xml") -replace '10\.0\.22621\.1', $Build | Set-Content "sxs\1.xml" -Force | Out-Null
 }
 
-# Update Packages
 Write-Host "----------------------------------------------"
 Write-Host "Converting SKU"
 dism /image:mount /apply-unattend:sxs\1.xml
 Write-Host "----------------------------------------------"
 Write-Host ""
 
-# Adding Language Pack
 Write-Host "----------------------------------------------"
 Write-Host "Adding Language Pack"
 dism /image:mount /add-package:lp
@@ -117,7 +114,6 @@ dism /image:mount /get-currentedition
 Write-Host "----------------------------------------------"
 Write-Host ""
 
-# Load Registry Hive
 Write-Host "----------------------------------------------"
 Write-Host "Loading Registry Hive"
 reg load HKLM\zSOFTWARE mount\Windows\System32\config\SOFTWARE | Out-Null
@@ -127,7 +123,6 @@ Write-Host "- zSYSTEM"
 Write-Host "----------------------------------------------"
 Write-Host ""
 
-# Apply Registry Keys to Registry Hive
 Write-Host "----------------------------------------------"
 Write-Host "Applying Registry Keys"
 
@@ -149,7 +144,6 @@ Write-Host "- Disable Defender Updates"
 Write-Host "----------------------------------------------"
 Write-Host ""
 
-# Unload Registry Hive
 Write-Host "----------------------------------------------"
 Write-Host "Unloading Registry Hive"
 reg unload HKLM\zSOFTWARE | Out-Null
@@ -159,7 +153,6 @@ Write-Host "- zSYSTEM"
 Write-Host "----------------------------------------------"
 Write-Host ""
 
-# Add License to Image
 Write-Host "----------------------------------------------"
 Write-Host "Adding License/EULA"
 mkdir mount\Windows\System32\Licenses\neutral\_Default\EnterpriseG -ErrorAction SilentlyContinue | Out-Null
@@ -169,7 +162,6 @@ Write-Host "- license.rtf"
 Write-Host "----------------------------------------------"
 Write-Host ""
 
-# If $ActivateWindows is set to true, compress the WIM to ESD to save storage
 if ($ActivateWindows -eq "True") {
 	Write-Host "----------------------------------------------"
     Write-Host "Adding activation for Windows using KMS38"
@@ -184,11 +176,9 @@ if ($ActivateWindows -eq "True") {
 
 if ($RemoveApps -eq "True") {
     Write-Host "----------------------------------------------"
-#Detecting Provisioned app packages
 	Write-Output "Removing inbox apps"
 	$detectedProvisionedPackages = Get-AppxProvisionedPackage -Path $installImageFolder
 
-	#Removing unwanted Provisioned app packages
 	foreach ($detectedProvisionedPackage in $detectedProvisionedPackages) {
 		foreach ($unwantedProvisionedPackage in $unwantedProvisionedPackages) {
 			if ($detectedProvisionedPackage.PackageName.Contains($unwantedProvisionedPackage)) {
@@ -202,11 +192,9 @@ if ($RemoveApps -eq "True") {
 
 if ($RemovePackages -eq "True") {
     Write-Host "----------------------------------------------"
-	#Detecting windows packages
 	Write-Output "Removing packages"
 	$detectedWindowsPackages = Get-WindowsPackage -Path $installImageFolder
 
-	#Removing unwanted windows packages
 	foreach ($detectedWindowsPackage in $detectedWindowsPackages) {
 		foreach ($unwantedWindowsPackage in $unwantedWindowsPackages) {
 			if ($detectedWindowsPackage.PackageName.Contains($unwantedWindowsPackage)) {
@@ -220,11 +208,9 @@ if ($RemovePackages -eq "True") {
 
 if ($DisableFeatures -eq "True") {
     Write-Host "----------------------------------------------"
-    #Detecting windows features
 	Write-Output "Disabling features"
 	$detectedWindowsFeatures = Get-WindowsOptionalFeature -Path $installImageFolder
 
-	#Removing unwanted windows features
 	foreach ($detectedWindowsFeature in $detectedWindowsFeatures) {
 		foreach ($unwantedWindowsFeature in $unwantedWindowsFeatures) {
 			if ($detectedWindowsFeature.FeatureName.Contains($unwantedWindowsFeature)) {
@@ -236,7 +222,6 @@ if ($DisableFeatures -eq "True") {
     Write-Host ""
 }
 
-# Save all Changes and unmount Image
 Write-Host "----------------------------------------------"
 Write-Host "Unmounting Install.wim Image"
 dism /unmount-wim /mountdir:mount /commit | Out-Null
@@ -245,14 +230,12 @@ if ($LASTEXITCODE -ne 0) { exit 1 }
 Write-Host "----------------------------------------------"
 Write-Host ""
 
-# Optimize new Install.wim Image
 Write-Host "----------------------------------------------"
 Write-Host "Optimizing Install.wim Image"
 & "files\wimlib-imagex" optimize install.wim
 Write-Host "----------------------------------------------"
 Write-Host ""
 
-# Set WIM infos
 Write-Host "----------------------------------------------"
 Write-Host "Setting WIM Infos"
 Write-Host ""
@@ -265,7 +248,6 @@ Write-Host "Display description: Windows $Windows EnterpriseG"
 Write-Host "----------------------------------------------"
 Write-Host ""
 
-# If set to true, WIM will be compressed to ESD to reduce size
 if ($WimToESD -eq "True") {
     Write-Host "----------------------------------------------"
     Write-Host "Converting WIM to ESD"
@@ -276,7 +258,6 @@ if ($WimToESD -eq "True") {
     Write-Host ""
 }
 
-# Clean-Up - last final touches
 $foldersToRemove = @("mount", "lp", "sxs")
 foreach ($folder in $foldersToRemove) {
     if (Test-Path $folder) {
@@ -285,7 +266,6 @@ foreach ($folder in $foldersToRemove) {
 }
 Write-Host ""
 
-# Script end
 $endTime = Get-Date
 $elapsedTime = $endTime - $startTime
 Write-Host "----------------------------------------------"
