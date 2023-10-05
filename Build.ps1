@@ -11,9 +11,17 @@ $startTime = Get-Date
 Set-Location -Path $PSScriptRoot
 
 # Script config
-$Windows = "Windows 11"
-$Build = "22621.1"
-$Type = "Normal"
+$imageInfo = Get-WindowsImage -ImagePath "install.wim" -Index 1
+$Windows = ($imageInfo.ImageName -split ' ')[1]
+$Build = $imageInfo.Version
+$detectBuildType = [int]($Build -replace '1[0-9]\.\d+\.', '')
+if ($detectBuildType -lt 19041) {
+    $Type = "Legacy"
+} elseif ($detectBuildType -lt 25398) {
+    $Type = "Normal"
+} else {
+    $Type = "vNext"
+}
 $WimToESD = "False"
 $RemoveApps = "False"
 $RemovePackages = "False"
@@ -60,11 +68,11 @@ Write-Host ""
 if ($Type -in "Normal", "vNext", "Legacy") {
     Copy-Item -Path $SourcePath -Destination $DestinationPath -Force | Out-Null
 
-    Rename-Item -Path "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~10.0.22621.1.mum" -NewName "Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~10.0.$Build.mum" -Force | Out-Null
-    Rename-Item -Path "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~10.0.22621.1.cat" -NewName "Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~10.0.$Build.cat" -Force | Out-Null
+    Rename-Item -Path "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~10.0.22621.1.mum" -NewName "Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~$Build.mum" -Force | Out-Null
+    Rename-Item -Path "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~10.0.22621.1.cat" -NewName "Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~$Build.cat" -Force | Out-Null
 
-    (Get-Content "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~10.0.$Build.mum") -replace '22621\.1', $Build | Set-Content "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~10.0.$Build.mum" -Force | Out-Null
-    (Get-Content "sxs\1.xml") -replace '22621\.1', $Build | Set-Content "sxs\1.xml" -Force | Out-Null
+    (Get-Content "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~$Build.mum") -replace '10\.0\.22621\.1', $Build | Set-Content "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~$Build.mum" -Force | Out-Null
+    (Get-Content "sxs\1.xml") -replace '10\.0\.22621\.1', $Build | Set-Content "sxs\1.xml" -Force | Out-Null
 }
 
 # Update Packages
@@ -111,10 +119,15 @@ Write-Host "- MSA login suppport"
 # Add Producer branding
 reg add "HKLM\zSOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionSubManufacturer /t REG_SZ /d "Microsoft Corporation" /f | Out-Null
 Write-Host "- Producer branding"
-
 # Fix Windows Security
 reg add "HKLM\zSYSTEM\ControlSet001\Control\CI\Policy" /v "VerifiedAndReputablePolicyState" /t REG_DWORD /d 0 /f | Out-Null
 Write-Host "- Fix Windows Defender Service"
+# Turn off Defender Updates
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\MRT" /v "DontOfferThroughWUAU" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\MRT" /v "DontReportInfectionInformation" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates" /v "ForceUpdateFromMU" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates" /v "UpdateOnStartUp" /t REG_DWORD /d "0" /f | Out-Null
+Write-Host "- Disable Defender Updates"
 Write-Host "----------------------------------------------"
 Write-Host ""
 
@@ -225,12 +238,12 @@ Write-Host ""
 Write-Host "----------------------------------------------"
 Write-Host "Setting WIM Infos"
 Write-Host ""
-& "files\wimlib-imagex" info install.wim 1 --image-property NAME="$Windows EnterpriseG" --image-property DESCRIPTION="$Windows EnterpriseG" --image-property FLAGS="EnterpriseG" --image-property DISPLAYNAME="$Windows Enterprise G" --image-property DISPLAYDESCRIPTION="$Windows Enterprise G" | Out-Null
-Write-Host "Name: $Windows EnterpriseG"
-Write-Host "Description: $Windows EnterpriseG"
+& "files\wimlib-imagex" info install.wim 1 --image-property NAME="Windows $Windows EnterpriseG" --image-property DESCRIPTION="$Windows EnterpriseG" --image-property FLAGS="EnterpriseG" --image-property DISPLAYNAME="$Windows Enterprise G" --image-property DISPLAYDESCRIPTION="$Windows Enterprise G" | Out-Null
+Write-Host "Name: Windows $Windows EnterpriseG"
+Write-Host "Description: Windows $Windows EnterpriseG"
 Write-Host "Flag: EnterpriseG"
-Write-Host "Display name: $Windows EnterpriseG"
-Write-Host "Display description: $Windows EnterpriseG"
+Write-Host "Display name: Windows $Windows EnterpriseG"
+Write-Host "Display description: Windows $Windows EnterpriseG"
 Write-Host "----------------------------------------------"
 Write-Host ""
 
@@ -247,8 +260,8 @@ if ($WimToESD -eq "True") {
 
 # Clean-Up - last final touches
 if (Test-Path "mount") { Remove-Item "mount" -Recurse -Force | Out-Null }
-if (Test-Path "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~10.0.$Build.mum") { Remove-Item "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~10.0.$Build.mum" | Out-Null }
-if (Test-Path "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~10.0.$Build.cat") { Remove-Item "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~10.0.$Build.cat" | Out-Null }
+if (Test-Path "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~$Build.mum") { Remove-Item "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~$Build.mum" | Out-Null }
+if (Test-Path "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~$Build.cat") { Remove-Item "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~$Build.cat" | Out-Null }
 if (Test-Path "sxs\1.xml") { Remove-Item "sxs\1.xml" | Out-Null }
 Write-Host ""
 
