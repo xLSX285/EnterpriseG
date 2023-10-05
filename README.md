@@ -18,11 +18,11 @@ Run `Build.ps1` and let the magic happen!
 
 ## Build
 
-- Specify the Windows Build Number
+- Build number gets detected by the script automatically.
 > All current **Windows 10**, **Windows 11** and **Windows vNext** Builds work with this script. `As of 10/5/23`
 
 ## Type
-
+- Type gets detected by the script automatically.
 - `Normal`: Recommended to build EnterpriseG for 19041 - 23xxx `Default`
 - `vNext`: Recommended to build EnterpriseG for 25xxx+
 - `Legacy` Recommended to build EnterpriseG for 17736 and older
