@@ -1,5 +1,7 @@
 # Windows Enterprise G Reconstruction Script
 
+## [Download latest script version](https://github.com/xLSX285/EnterpriseG/archive/refs/heads/main.zip)
+
 # How to reconstruct EnterpriseG
 
 - Copy `install.wim`, `Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD` and `Microsoft-Windows-Client-LanguagePack-Package-amd64-en-us.esd` to the same directory as the `Build.ps1` file
