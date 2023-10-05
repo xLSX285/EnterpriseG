@@ -2,13 +2,9 @@
 
 # How to reconstruct EnterpriseG
 
-- Extract files `250+` inside `Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD` to `sxs`
-- Extract files `10000+` inside `Microsoft-Windows-Client-LanguagePack-Package-amd64-en-us.esd` to `lp`
-
-> You can download both .ESD files through **UUP Dump**.
-
-- Copy `install.wim` to the same directory as the `Build.ps1` file
+- Copy `install.wim`, `Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD` and `Microsoft-Windows-Client-LanguagePack-Package-amd64-en-us.esd` to the same directory as the `Build.ps1` file
 > Make sure your install.wim file contains `NO updates` and `only includes the Pro Edition` You can build a clean ISO containing the install.wim with no updates and Pro only through **UUP Dump**. You find the `install.wim` inside the `sources` folder of your ISO.
+> You can download both .ESD files through **UUP Dump**.
 
 - Set your settings inside `Build.ps1` and `config.json`
 
