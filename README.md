@@ -35,12 +35,12 @@ Run `Build.ps1` and let the magic happen!
 ## RemoveApps
 
 - `True`: All inbox apps will be removed from the mounted image
-- `False`: All inbox apps will remain `Default`
+- `False`: All inbox apps will remain installed `Default`
 
 ## RemovePackages
 
 - `True`: All safe to remove packages will be removed from the mounted image
-- `False`: All other packages will remain `Default`
+- `False`: All other packages will remain installed `Default`
 
 ## DisableFeatures
 
@@ -67,10 +67,10 @@ Run `Build.ps1` and let the magic happen!
 - List of features that will be removed if set to true in build.ps1
 
 # Known "issues" with EnterpriseG
-- `EnterpriseG` Insider Preview builds cannot be updated through Windows Update, you have to get another ISO and perform an inplace upgrade. - `Microsoft doesn't officially offer EnterpriseG as Edition to the public. That's why.`
+- `EnterpriseG` Insider Preview builds cannot be updated through Windows Update, you have to get another Image and perform an inplace upgrade.
 - Factory resetting Windows will display an `OOBE_EULA` error during setup. **[How to fix (step 3)](https://www.howto-connect.com/fix-oobeeula-error-something-went-wrong-windows-10-or-11/)**
-- Factory resetting Windows will remove the additional registry keys that are responsible for Microsoft Account login support for EnterpriseG and more important components. **[Heres how to add them back super easily.](https://pastebin.com/ye0ZyPcu)**
-- Inplace upgrade fails on some versions of Windows 11
+- Factory resetting Windows will remove the additional registry keys that are responsible for Microsoft Account login support for EnterpriseG etc. **[Heres how to add them back super easily.](https://pastebin.com/ye0ZyPcu)**
+- Inplace upgrade fails on 19041 -> 22621 (fix needed)
 
 # TODO
 - More script optimizations!
