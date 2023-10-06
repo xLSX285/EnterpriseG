@@ -7,7 +7,7 @@ if (-Not $isAdmin) {
 $startTime = Get-Date
 Set-Location -Path $PSScriptRoot
 
-$requiredFiles = @("install.wim", "Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD", "Microsoft-Windows-Client-LanguagePack-Package-amd64-en-us.esd")
+$requiredFiles = @("install.wim", "Microsoft-Windows-EditionSpecific*", "Microsoft-Windows-Client-LanguagePack*")
 $missingFiles = $requiredFiles | Where-Object { -not (Test-Path $_) }
 
 if ($missingFiles) {
@@ -75,10 +75,8 @@ foreach ($folder in $folders) {
 
 Write-Host ""
 Write-Host "Extracting language pack & Edition files"
-Write-Host "- Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD"
-.\files\7z.exe x Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD -osxs | Out-Null
-Write-Host "- Microsoft-Windows-Client-LanguagePack-Package-amd64-en-us.esd"
-.\files\7z.exe x Microsoft-Windows-Client-LanguagePack-Package-amd64-en-us.esd -olp | Out-Null
+if ($editionesd = (Get-ChildItem -Filter "Microsoft-Windows-EditionSpecific*.esd").Name) { Write-Host "- $editionesd"; .\files\7z.exe x $editionesd -osxs | Out-Null }
+if ($lpesd = (Get-ChildItem -Filter "Microsoft-Windows-Client-LanguagePack*.esd").Name) { Write-Host "- $lpesd"; .\files\7z.exe x $lpesd -olp | Out-Null }
 Write-Host ""
 Write-Host ""
 
@@ -260,12 +258,7 @@ if ($WimToESD -eq "True") {
     Write-Host ""
 }
 
-$foldersToRemove = @("mount", "lp", "sxs")
-foreach ($folder in $foldersToRemove) {
-    if (Test-Path $folder) {
-        Remove-Item $folder -Recurse -Force | Out-Null
-    }
-}
+@("mount", "lp", "sxs") | ForEach-Object { if (Test-Path $_) { Remove-Item $_ -Recurse -Force | Out-Null } }
 Write-Host ""
 
 $endTime = Get-Date
