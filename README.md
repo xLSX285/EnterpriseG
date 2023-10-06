@@ -15,17 +15,6 @@ Run `Build.ps1` and let the magic happen!
 
 # Settings
 
-## Build
-
-- Build number gets detected by the script automatically.
-> All current **Windows 10**, **Windows 11** and **Windows vNext** Builds work with this script. `As of 10/5/23`
-
-## Type
-- Type gets detected by the script automatically.
-- `Normal`: Recommended to build EnterpriseG for 19041 - 23xxx `Default`
-- `vNext`: Recommended to build EnterpriseG for 25398+
-- `Legacy` Recommended to build EnterpriseG for 17736 and older
-
 ## WimToESD 
 
 - `True`: Script will compress Install.wim to Install.esd - This will require more time and resources.
