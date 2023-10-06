@@ -244,7 +244,7 @@ Write-Host ""
 Write-Host ""
 Write-Host "Setting WIM Infos"
 Write-Host ""
-& "files\wimlib-imagex" info install.wim 1 --image-property NAME="Windows $Windows EnterpriseG" --image-property DESCRIPTION="Windows $Windows EnterpriseG" --image-property FLAGS="EnterpriseG" --image-property DISPLAYNAME="Windows $Windows Enterprise G" --image-property DISPLAYDESCRIPTION="Windows $Windows Enterprise G"
+& "files\wimlib-imagex" info install.wim 1 --image-property NAME="Windows $Windows Enterprise G" --image-property DESCRIPTION="Windows $Windows Enterprise G" --image-property FLAGS="EnterpriseG" --image-property DISPLAYNAME="Windows $Windows Enterprise G" --image-property DISPLAYDESCRIPTION="Windows $Windows Enterprise G"
 Write-Host ""
 Write-Host ""
 
@@ -266,7 +266,7 @@ $elapsedTime = $endTime - $startTime
 $elapsedMinutes = [math]::Floor($elapsedTime.TotalMinutes)
 $elapsedSeconds = $elapsedTime.Seconds
 Write-Host ""
-Write-Host "EnterpriseG completed in $($elapsedMinutes) minutes and $($elapsedSeconds) seconds."
+Write-Host "Enterprise G completed in $($elapsedMinutes) minutes and $($elapsedSeconds) seconds."
 Write-Host ""
 Write-Host ""
 pause
