@@ -13,7 +13,7 @@
 
 Run `Build.ps1` and let the magic happen!
 
-# Build.ps1 settings
+# Settings
 
 ## Build
 
@@ -50,8 +50,6 @@ Run `Build.ps1` and let the magic happen!
 
 - `True`: Windows will be activated using KMS38 method
 - `False`: Windows wont be activated `Default`
-
-# Config.json settings
 
 ## ProvisionedPackagesToRemove
 
