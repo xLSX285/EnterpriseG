@@ -1,6 +1,7 @@
 # Windows Enterprise G Reconstruction Script
 
 ## [Download latest script version](https://github.com/xLSX285/EnterpriseG/archive/refs/heads/main.zip)
+![2](https://github.com/xLSX285/EnterpriseG/assets/129116755/a16cbe9a-c12a-41c8-ba67-d3fdadff06b2)
 
 # How to reconstruct EnterpriseG
 
