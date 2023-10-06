@@ -260,7 +260,6 @@ if ($WimToESD -eq "True") {
     Write-Host ""
 }
 
-timeout 5 | Out-Null
 $foldersToRemove = @("mount", "lp", "sxs")
 foreach ($folder in $foldersToRemove) {
     if (Test-Path $folder) {
