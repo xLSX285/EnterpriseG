@@ -1,4 +1,8 @@
 {
+    "ActivateWindows": false,
+    "WimToESD": false,
+    
+    "RemoveApps": false,
     "ProvisionedPackagesToRemove": [
         "Clipchamp.Clipchamp_",
         "Microsoft.549981C3F5F10_",
@@ -60,6 +64,7 @@
         "Microsoft.WindowsAppRuntime.1.3_",
         "Microsoft.WindowsStore_"
     ],
+    "RemovePackages": false,
     "WindowsPackagesToRemove": [
         "Microsoft-Windows-Ethernet-Client-Intel-E1i68x64-FOD-Package",
         "Microsoft-Windows-Ethernet-Client-Intel-E2f68-FOD-Package",
@@ -119,6 +124,7 @@
         "Containers-Dynamic-Image-FoD-Package",
         "Microsoft-Windows-VBSCRIPT-FoD-Package"
     ],
+    "DisableFeatures": false,
     "WindowsFeaturesToDisable": [
         "Windows-Defender-Default-Definitions",
         "Printing-PrintToPDFServices-Features",
