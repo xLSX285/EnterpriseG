@@ -156,22 +156,21 @@ else {
 Write-Host "- license.rtf"
 Write-Host ""
 
+$null = New-Item -ItemType Directory -Path "mount\Windows\Setup\Scripts" -Force | Out-Null
+Copy-Item -Path "files\Scripts\SetupComplete.cmd" -Destination "mount\Windows\Setup\Scripts\SetupComplete.cmd" -Force | Out-Null
 if ($ActivateWindows -eq "True") {
 	Write-Host ""
     Write-Host "Adding activation for Windows using KMS38"
-    $null = New-Item -ItemType Directory -Path "mount\Windows\Setup\Scripts" -Force | Out-Null
     Copy-Item -Path "files\Scripts\activate_kms38.cmd" -Destination "mount\Windows\Setup\Scripts\activate_kms38.cmd" -Force | Out-Null
 	Write-Host "- activate_kms38.cmd"
-    Copy-Item -Path "files\Scripts\SetupComplete.cmd" -Destination "mount\Windows\Setup\Scripts\SetupComplete.cmd" -Force | Out-Null
-	Write-Host "- SetupComplete.cmd"
 	Write-Host ""
 }
 
 if ($RemoveEdge -eq "True") {
 	Write-Host ""
-    Write-Host "Removing Edge and WebView2"
-    Write-Host "- Placeholder, logic needs to be added."
-    Write-Host "- Placeholder, logic needs to be added."
+    Write-Host "Removing Edge and WebView2 at setup complete"
+    Copy-Item -Path "files\Scripts\RemoveEdge.cmd" -Destination "mount\Windows\Setup\Scripts\RemoveEdge.cmd" -Force | Out-Null
+	Write-Host "- RemoveEdge.cmd"
 	Write-Host ""
 }
 
