@@ -101,7 +101,7 @@ Remove-Item -Path mount\Windows\*.xml -ErrorAction SilentlyContinue | Out-Null
 Copy-Item -Path mount\Windows\servicing\Editions\EnterpriseGEdition.xml -Destination mount\Windows\EnterpriseG.xml -ErrorAction SilentlyContinue | Out-Null
 
 Write-Host ""
-Write-Host "Setting SKU to EnterpriseG"
+Write-Host "Setting SKU to Enterprise G"
 dism /image:mount /apply-unattend:mount\Windows\EnterpriseG.xml | Out-Null
 dism /image:mount /set-productkey:YYVX9-NTFWV-6MDM3-9PT4T-4M68B | Out-Null
 dism /image:mount /get-currentedition
@@ -252,7 +252,7 @@ $elapsedTime = $endTime - $startTime
 $elapsedMinutes = [math]::Floor($elapsedTime.TotalMinutes)
 $elapsedSeconds = $elapsedTime.Seconds
 Write-Host ""
-Write-Host "Enterprise G completed in $($elapsedMinutes) minutes and $($elapsedSeconds) seconds."
+Write-Host "Reconstruction completed in $($elapsedMinutes) minutes and $($elapsedSeconds) seconds."
 Write-Host ""
 pause
 exit
