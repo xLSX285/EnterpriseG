@@ -27,8 +27,10 @@ Run `Build.ps1` and let the magic happen!
 
 ## RemoveEdge
 
-- `True`: Microsoft Edge and WebView2 will be removed from the image `Default | Official way`
+- `True`: Microsoft Edge and WebView2 will be removed at setup complete `Default`
 - `False`: Microsoft Edge and WebView2 will remain installed
+
+> I'm looking into removing it at image level in the future
 
 ## RemoveApps
 
