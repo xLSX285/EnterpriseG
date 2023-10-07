@@ -50,7 +50,7 @@ $unwantedWindowsFeatures = $config.WindowsFeaturesToDisable
 $FeatureCount = $unwantedWindowsFeatures.Count
 $yes = (cmd /c "choice <nul 2>nul")[1]
 
-Write-Host "Enterprise G Reconstruction v2.0.3"
+Write-Host "Enterprise G Reconstruction v2.0.4"
 Write-Host ""
 Write-Host "Loading configuration"
 Write-Host "- Windows: $Windows"
@@ -164,6 +164,14 @@ if ($ActivateWindows -eq "True") {
 	Write-Host "- activate_kms38.cmd"
     Copy-Item -Path "files\Scripts\SetupComplete.cmd" -Destination "mount\Windows\Setup\Scripts\SetupComplete.cmd" -Force | Out-Null
 	Write-Host "- SetupComplete.cmd"
+	Write-Host ""
+}
+
+if ($RemoveEdge -eq "True") {
+	Write-Host ""
+    Write-Host "Removing Edge and WebView2"
+    Write-Host "- Placeholder, logic needs to be added."
+    Write-Host "- Placeholder, logic needs to be added."
 	Write-Host ""
 }
 
