@@ -1,6 +1,6 @@
 if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { Start-Process powershell.exe -ArgumentList " -NoProfile -ExecutionPolicy Bypass -File $($MyInvocation.MyCommand.Path)" -Verb RunAs; exit }
 
-$ScriptVersion = "v2.0.5"
+$ScriptVersion = "v2.0.6"
 $startTime = Get-Date
 Set-Location -Path $PSScriptRoot
 
@@ -158,22 +158,30 @@ else {
 Write-Host "- license.rtf"
 Write-Host ""
 
-$null = New-Item -ItemType Directory -Path "mount\Windows\Setup\Scripts" -Force | Out-Null
-Copy-Item -Path "files\Scripts\SetupComplete.cmd" -Destination "mount\Windows\Setup\Scripts\SetupComplete.cmd" -Force | Out-Null
 if ($ActivateWindows -eq "True") {
-	Write-Host ""
+    Write-Host ""
+    New-Item -ItemType Directory -Path "mount\Windows\Setup\Scripts" -Force | Out-Null
+    Copy-Item -Path "files\Scripts\SetupComplete.cmd" -Destination "mount\Windows\Setup\Scripts\SetupComplete.cmd" -Force | Out-Null
     Write-Host "Adding activation for Windows using KMS38"
     Copy-Item -Path "files\Scripts\activate_kms38.cmd" -Destination "mount\Windows\Setup\Scripts\activate_kms38.cmd" -Force | Out-Null
-	Write-Host "- activate_kms38.cmd"
-	Write-Host ""
+    Write-Host "- activate_kms38.cmd"
+    Write-Host ""
 }
 
 if ($RemoveEdge -eq "True") {
-	Write-Host ""
+    Write-Host ""
     Write-Host "Removing Edge and WebView2 at setup complete"
+    $ScriptsDirectory = "mount\Windows\Setup\Scripts"
+    if (!(Test-Path -Path $ScriptsDirectory -PathType Container)) {
+        New-Item -ItemType Directory -Path $ScriptsDirectory -Force | Out-Null
+    }
+    $setupCompleteScript = "mount\Windows\Setup\Scripts\SetupComplete.cmd"
+    if (!(Test-Path -Path $setupCompleteScript -PathType Leaf)) {
+        Copy-Item -Path "files\Scripts\SetupComplete.cmd" -Destination $setupCompleteScript -Force | Out-Null
+    }
     Copy-Item -Path "files\Scripts\RemoveEdge.cmd" -Destination "mount\Windows\Setup\Scripts\RemoveEdge.cmd" -Force | Out-Null
-	Write-Host "- RemoveEdge.cmd"
-	Write-Host ""
+    Write-Host "- RemoveEdge.cmd"
+    Write-Host ""
 }
 
 if ($RemoveApps -eq "True") {
