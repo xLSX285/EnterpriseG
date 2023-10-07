@@ -15,10 +15,20 @@ Run `Build.ps1` and let the magic happen!
 
 # Settings
 
+## ActivateWindows
+
+- `True`: Windows will be activated using KMS38 method
+- `False`: Windows wont be activated `Default`
+
 ## WimToESD 
 
 - `True`: Script will compress Install.wim to Install.esd - This will require more time and resources.
 - `False`: Script wont compress Install.wim to Install.esd `Default`
+
+## RemoveEdge
+
+- `True`: Microsoft Edge and WebView2 will be removed from the image
+- `False`: Microsoft Edge and WebView2 will remain installed `Default`
 
 ## RemoveApps
 
@@ -34,11 +44,6 @@ Run `Build.ps1` and let the magic happen!
 
 - `True`: All features will be disabled from the mounted image
 - `False`: All features will remain enabled `Default`
-
-## ActivateWindows
-
-- `True`: Windows will be activated using KMS38 method
-- `False`: Windows wont be activated `Default`
 
 ## ProvisionedPackagesToRemove
 
