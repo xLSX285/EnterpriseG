@@ -38,6 +38,7 @@ if ($detectBuildType -lt 19041) {
 $config = (Get-Content "config.json" -Raw) | ConvertFrom-Json
 $ActivateWindows = $config.ActivateWindows
 $WimToESD = $config.WimToESD
+$RemoveEdge = $config.RemoveEdge
 $RemoveApps = $config.RemoveApps
 $unwantedProvisionedPackages = $config.ProvisionedPackagesToRemove
 $AppCount = $unwantedProvisionedPackages.Count
@@ -49,7 +50,7 @@ $unwantedWindowsFeatures = $config.WindowsFeaturesToDisable
 $FeatureCount = $unwantedWindowsFeatures.Count
 $yes = (cmd /c "choice <nul 2>nul")[1]
 
-Write-Host "EnterpriseG Reconstruction v2.0.1"
+Write-Host "Enterprise G Reconstruction v2.0.3"
 Write-Host ""
 Write-Host "Loading configuration"
 Write-Host "- Windows: $Windows"
@@ -57,6 +58,7 @@ Write-Host "- Build: $Build"
 Write-Host "- Type: $Type"
 Write-Host "- ActivateWindows: $ActivateWindows"
 Write-Host "- WimToESD: $WimToESD"
+Write-Host "- RemoveEdge: $RemoveEdge"
 Write-Host "- RemoveApps: $RemoveApps" [$AppCount Apps detected]
 Write-Host "- RemovePackages: $RemovePackages" [$PackageCount Packages detected]
 Write-Host "- DisableFeatures: $DisableFeatures" [$FeatureCount Features detected]
@@ -143,9 +145,14 @@ Write-Host ""
 
 Write-Host ""
 Write-Host "Adding License/EULA"
-mkdir mount\Windows\System32\Licenses\neutral\_Default\EnterpriseG -ErrorAction SilentlyContinue | Out-Null
-Write-Host "- New directory mount\Windows\System32\Licenses\neutral\_Default\EnterpriseG"
-Copy-Item -Path "files\License\license.rtf" -Destination "mount\Windows\System32\Licenses\neutral\_Default\EnterpriseG\license.rtf" -Force | Out-Null
+if ($Type -eq "vNext") {
+    Write-Host "- Directory mount\Windows\System32\en-US\Licenses\_Default\EnterpriseG"
+    Copy-Item -Path "files\License\license.rtf" -Destination "mount\Windows\System32\en-US\Licenses\_Default\EnterpriseG\license.rtf" -Force | Out-Null
+}
+else {
+    Write-Host "- Directory mount\Windows\System32\Licenses\neutral\_Default\EnterpriseG"
+    Copy-Item -Path "files\License\license.rtf" -Destination "mount\Windows\System32\Licenses\neutral\_Default\EnterpriseG\license.rtf" -Force | Out-Null
+}
 Write-Host "- license.rtf"
 Write-Host ""
 
@@ -153,8 +160,8 @@ if ($ActivateWindows -eq "True") {
 	Write-Host ""
     Write-Host "Adding activation for Windows using KMS38"
     $null = New-Item -ItemType Directory -Path "mount\Windows\Setup\Scripts" -Force | Out-Null
-    Copy-Item -Path "files\Scripts\MAS_AIO.cmd" -Destination "mount\Windows\Setup\Scripts\MAS_AIO.cmd" -Force | Out-Null
-	Write-Host "- MAS_AIO.cmd"
+    Copy-Item -Path "files\Scripts\activate_kms38.cmd" -Destination "mount\Windows\Setup\Scripts\activate_kms38.cmd" -Force | Out-Null
+	Write-Host "- activate_kms38.cmd"
     Copy-Item -Path "files\Scripts\SetupComplete.cmd" -Destination "mount\Windows\Setup\Scripts\SetupComplete.cmd" -Force | Out-Null
 	Write-Host "- SetupComplete.cmd"
 	Write-Host ""
