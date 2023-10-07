@@ -1,5 +1,6 @@
 if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { Start-Process powershell.exe -ArgumentList " -NoProfile -ExecutionPolicy Bypass -File $($MyInvocation.MyCommand.Path)" -Verb RunAs; exit }
 
+$ScriptVersion = "v2.0.5"
 $startTime = Get-Date
 Set-Location -Path $PSScriptRoot
 
@@ -50,7 +51,7 @@ $unwantedWindowsFeatures = $config.WindowsFeaturesToDisable
 $FeatureCount = $unwantedWindowsFeatures.Count
 $yes = (cmd /c "choice <nul 2>nul")[1]
 
-Write-Host "Enterprise G Reconstruction v2.0.4"
+Write-Host "Enterprise G Reconstruction $ScriptVersion"
 Write-Host ""
 Write-Host "Loading configuration"
 Write-Host "- Windows: $Windows"
@@ -123,6 +124,7 @@ reg Add "HKLM\zSOFTWARE\Microsoft\PolicyManager\current\device\Accounts" /v "All
 Write-Host "- MSA login suppport"
 # Add Producer branding
 reg add "HKLM\zSOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionSubManufacturer /t REG_SZ /d "Microsoft Corporation" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionSubVersion /t REG_SZ /d "$ScriptVersion" /f | Out-Null
 Write-Host "- Producer branding"
 # Fix Windows Security
 reg add "HKLM\zSYSTEM\ControlSet001\Control\CI\Policy" /v "VerifiedAndReputablePolicyState" /t REG_DWORD /d 0 /f | Out-Null
