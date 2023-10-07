@@ -1,8 +1,4 @@
-$isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-if (-Not $isAdmin) {
-    Start-Process powershell.exe -ArgumentList " -NoProfile -ExecutionPolicy Bypass -File $($MyInvocation.MyCommand.Path)" -Verb RunAs
-    exit
-}
+if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { Start-Process powershell.exe -ArgumentList " -NoProfile -ExecutionPolicy Bypass -File $($MyInvocation.MyCommand.Path)" -Verb RunAs; exit }
 
 $startTime = Get-Date
 Set-Location -Path $PSScriptRoot
@@ -53,6 +49,7 @@ $unwantedWindowsFeatures = $config.WindowsFeaturesToDisable
 $FeatureCount = $unwantedWindowsFeatures.Count
 $yes = (cmd /c "choice <nul 2>nul")[1]
 
+Write-Host "EnterpriseG Reconstruction v2.0.1"
 Write-Host ""
 Write-Host "Loading configuration"
 Write-Host "- Windows: $Windows"
@@ -64,27 +61,19 @@ Write-Host "- RemoveApps: $RemoveApps" [$AppCount Apps detected]
 Write-Host "- RemovePackages: $RemovePackages" [$PackageCount Packages detected]
 Write-Host "- DisableFeatures: $DisableFeatures" [$FeatureCount Features detected]
 Write-Host ""
-Write-Host ""
 
-$folders = @("mount", "lp", "sxs")
-foreach ($folder in $folders) {
-    if (!(Test-Path -Path $folder -PathType Container)) {
-        New-Item -Path $folder -ItemType Directory | Out-Null
-    }
-}
+@("mount", "lp", "sxs") | ForEach-Object { if (!(Test-Path $_ -PathType Container)) { New-Item -Path $_ -ItemType Directory | Out-Null } }
 
 Write-Host ""
 Write-Host "Extracting language pack & Edition files"
 if ($editionesd = (Get-ChildItem -Filter "Microsoft-Windows-EditionSpecific*.esd").Name) { Write-Host "- $editionesd"; .\files\7z.exe x $editionesd -osxs | Out-Null }
 if ($lpesd = (Get-ChildItem -Filter "Microsoft-Windows-Client-LanguagePack*.esd").Name) { Write-Host "- $lpesd"; .\files\7z.exe x $lpesd -olp | Out-Null }
 Write-Host ""
-Write-Host ""
 
 Write-Host ""
 Write-Host "Mounting Image"
 dism /mount-wim /wimfile:install.wim /index:1 /mountdir:mount | Out-Null
 Write-Host "- install.wim"
-Write-Host ""
 Write-Host ""
 
 if ($Type -in "Normal", "vNext", "Legacy") {
@@ -101,12 +90,10 @@ Write-Host ""
 Write-Host "Converting SKU"
 dism /image:mount /apply-unattend:sxs\1.xml
 Write-Host ""
-Write-Host ""
 
 Write-Host ""
 Write-Host "Adding Language Pack"
 dism /image:mount /add-package:lp
-Write-Host ""
 Write-Host ""
 Remove-Item -Path mount\Windows\*.xml -ErrorAction SilentlyContinue | Out-Null
 Copy-Item -Path mount\Windows\servicing\Editions\EnterpriseGEdition.xml -Destination mount\Windows\EnterpriseG.xml -ErrorAction SilentlyContinue | Out-Null
@@ -117,7 +104,6 @@ dism /image:mount /apply-unattend:mount\Windows\EnterpriseG.xml | Out-Null
 dism /image:mount /set-productkey:YYVX9-NTFWV-6MDM3-9PT4T-4M68B | Out-Null
 dism /image:mount /get-currentedition
 Write-Host ""
-Write-Host ""
 
 Write-Host ""
 Write-Host "Loading Registry Hive"
@@ -125,7 +111,6 @@ reg load HKLM\zSOFTWARE mount\Windows\System32\config\SOFTWARE | Out-Null
 Write-Host "- zSOFTWARE"
 reg load HKLM\zSYSTEM mount\Windows\System32\config\SYSTEM | Out-Null
 Write-Host "- zSYSTEM"
-Write-Host ""
 Write-Host ""
 
 Write-Host ""
@@ -147,7 +132,6 @@ reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates" /
 reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates" /v "UpdateOnStartUp" /t REG_DWORD /d "0" /f | Out-Null
 Write-Host "- Disable Defender Updates"
 Write-Host ""
-Write-Host ""
 
 Write-Host ""
 Write-Host "Unloading Registry Hive"
@@ -156,7 +140,6 @@ Write-Host "- zSOFTWARE"
 reg unload HKLM\zSYSTEM | Out-Null
 Write-Host "- zSYSTEM"
 Write-Host ""
-Write-Host ""
 
 Write-Host ""
 Write-Host "Adding License/EULA"
@@ -164,7 +147,6 @@ mkdir mount\Windows\System32\Licenses\neutral\_Default\EnterpriseG -ErrorAction 
 Write-Host "- New directory mount\Windows\System32\Licenses\neutral\_Default\EnterpriseG"
 Copy-Item -Path "files\License\license.rtf" -Destination "mount\Windows\System32\Licenses\neutral\_Default\EnterpriseG\license.rtf" -Force | Out-Null
 Write-Host "- license.rtf"
-Write-Host ""
 Write-Host ""
 
 if ($ActivateWindows -eq "True") {
@@ -176,7 +158,6 @@ if ($ActivateWindows -eq "True") {
     Copy-Item -Path "files\Scripts\SetupComplete.cmd" -Destination "mount\Windows\Setup\Scripts\SetupComplete.cmd" -Force | Out-Null
 	Write-Host "- SetupComplete.cmd"
 	Write-Host ""
-    Write-Host ""
 }
 
 if ($RemoveApps -eq "True") {
@@ -191,7 +172,6 @@ if ($RemoveApps -eq "True") {
 			}
 		}
 	}
-    Write-Host ""
     Write-Host ""
 }
 
@@ -208,7 +188,6 @@ if ($RemovePackages -eq "True") {
 		}
 	}
     Write-Host ""
-    Write-Host ""
 }
 
 if ($DisableFeatures -eq "True") {
@@ -224,7 +203,6 @@ if ($DisableFeatures -eq "True") {
 		}
 	}
     Write-Host ""
-    Write-Host ""
 }
 
 Write-Host ""
@@ -233,19 +211,15 @@ dism /unmount-wim /mountdir:mount /commit | Out-Null
 Write-Host "- install.wim"
 if ($LASTEXITCODE -ne 0) { exit 1 }
 Write-Host ""
-Write-Host ""
 
 Write-Host ""
 Write-Host "Optimizing Install.wim Image"
 & "files\wimlib-imagex" optimize install.wim
 Write-Host ""
-Write-Host ""
 
 Write-Host ""
 Write-Host "Setting WIM Infos"
-Write-Host ""
 & "files\wimlib-imagex" info install.wim 1 --image-property NAME="Windows $Windows Enterprise G" --image-property DESCRIPTION="Windows $Windows Enterprise G" --image-property FLAGS="EnterpriseG" --image-property DISPLAYNAME="Windows $Windows Enterprise G" --image-property DISPLAYDESCRIPTION="Windows $Windows Enterprise G"
-Write-Host ""
 Write-Host ""
 
 if ($WimToESD -eq "True") {
@@ -255,11 +229,9 @@ if ($WimToESD -eq "True") {
     Write-Host "- Install.wim -> Install.esd"
     if (Test-Path "install.wim") { Remove-Item "install.wim" | Out-Null }
     Write-Host ""
-    Write-Host ""
 }
 
 @("mount", "lp", "sxs") | ForEach-Object { if (Test-Path $_) { Remove-Item $_ -Recurse -Force | Out-Null } }
-Write-Host ""
 
 $endTime = Get-Date
 $elapsedTime = $endTime - $startTime
@@ -267,7 +239,6 @@ $elapsedMinutes = [math]::Floor($elapsedTime.TotalMinutes)
 $elapsedSeconds = $elapsedTime.Seconds
 Write-Host ""
 Write-Host "Enterprise G completed in $($elapsedMinutes) minutes and $($elapsedSeconds) seconds."
-Write-Host ""
 Write-Host ""
 pause
 exit
