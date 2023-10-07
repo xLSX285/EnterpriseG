@@ -1,6 +1,6 @@
 if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { Start-Process powershell.exe -ArgumentList " -NoProfile -ExecutionPolicy Bypass -File $($MyInvocation.MyCommand.Path)" -Verb RunAs; exit }
 
-$ScriptVersion = "v2.0.6"
+$ScriptVersion = "v2.0.8"
 $startTime = Get-Date
 Set-Location -Path $PSScriptRoot
 
@@ -70,7 +70,8 @@ Write-Host ""
 Write-Host ""
 Write-Host "Extracting language pack & Edition files"
 if ($editionesd = (Get-ChildItem -Filter "Microsoft-Windows-EditionSpecific*.esd").Name) { Write-Host "- $editionesd"; .\files\7z.exe x $editionesd -osxs | Out-Null }
-if ($lpesd = (Get-ChildItem -Filter "Microsoft-Windows-Client-LanguagePack*.esd").Name) { Write-Host "- $lpesd"; .\files\7z.exe x $lpesd -olp | Out-Null }
+$lpesd = Get-ChildItem -Filter "Microsoft-Windows-Client-LanguagePack*.esd"
+if ($lpesd) { Write-Host "- $($lpesd.Name)"; .\files\7z.exe x $lpesd.FullName -olp | Out-Null; if ($lpesd.Name -match "(zh-CN|en-US)") { $lang = $Matches[0] } }
 Write-Host ""
 
 Write-Host ""
@@ -148,8 +149,8 @@ Write-Host ""
 Write-Host ""
 Write-Host "Adding License/EULA"
 if ($Type -eq "vNext") {
-    Write-Host "- Directory mount\Windows\System32\en-US\Licenses\_Default\EnterpriseG"
-    Copy-Item -Path "files\License\license.rtf" -Destination "mount\Windows\System32\en-US\Licenses\_Default\EnterpriseG\license.rtf" -Force | Out-Null
+    Write-Host "- Directory mount\Windows\System32\$lang\Licenses\_Default\EnterpriseG"
+    Copy-Item -Path "files\License\license.rtf" -Destination "mount\Windows\System32\$lang\Licenses\_Default\EnterpriseG\license.rtf" -Force | Out-Null
 }
 else {
     Write-Host "- Directory mount\Windows\System32\Licenses\neutral\_Default\EnterpriseG"
@@ -228,7 +229,6 @@ if ($DisableFeatures -eq "True") {
 	}
     Write-Host ""
 }
-
 Write-Host ""
 Write-Host "Unmounting Install.wim Image"
 dism /unmount-wim /mountdir:mount /commit | Out-Null
