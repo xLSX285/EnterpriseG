@@ -46,8 +46,6 @@
 - `True`: Microsoft Edge and WebView2 will be removed at setup complete `Default | Official`
 - `False`: Microsoft Edge and WebView2 wont be removed
 
-> I'm looking into removing it at image level in the future
-
 ## RemoveApps
 
 - `True`: All specified inbox apps in `ProvisionedPackagesToRemove` will be removed from the image
