@@ -38,13 +38,13 @@
 
 ## WimToESD 
 
-- `True`: Script will compress Install.wim to Install.esd - This will require more time and resources.
-- `False`: Script wont compress Install.wim to Install.esd `Default`
+- `True`: install.wim image will be compressed to install.esd.
+- `False`: install.wim image wont be compressed `Default`
 
 ## RemoveEdge
 
-- `True`: Microsoft Edge and WebView2 will be removed at setup complete `Default`
-- `False`: Microsoft Edge and WebView2 will remain installed
+- `True`: Microsoft Edge and WebView2 will be removed at setup complete `Default | Official`
+- `False`: Microsoft Edge and WebView2 wont be removed
 
 > I'm looking into removing it at image level in the future
 
