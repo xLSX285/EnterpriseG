@@ -1,6 +1,6 @@
 if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { Start-Process powershell.exe -ArgumentList " -NoProfile -ExecutionPolicy Bypass -File $($MyInvocation.MyCommand.Path)" -Verb RunAs; exit }
 
-$ScriptVersion = "v2.0.8"
+$ScriptVersion = "v2.0.9"
 $startTime = Get-Date
 Set-Location -Path $PSScriptRoot
 
@@ -23,7 +23,7 @@ if ($imageInfo.SPBuild -notin $allowedSPBuilds) {
     exit 1
 }
 if ($imageInfo.ImageName -notlike "*Pro*") {
-    Write-Host "Mounted image does not appear to be the Pro Edition."
+    Write-Host "Mounted image does not appear to be the Pro edition."
     pause
     exit 1
 }
@@ -68,14 +68,13 @@ Write-Host ""
 @("mount", "lp", "sxs") | ForEach-Object { if (!(Test-Path $_ -PathType Container)) { New-Item -Path $_ -ItemType Directory | Out-Null } }
 
 Write-Host ""
-Write-Host "Extracting language pack & Edition files"
+Write-Host "Extracting language pack & edition files"
 if ($editionesd = (Get-ChildItem -Filter "Microsoft-Windows-EditionSpecific*.esd").Name) { Write-Host "- $editionesd"; .\files\7z.exe x $editionesd -osxs | Out-Null }
-$lpesd = Get-ChildItem -Filter "Microsoft-Windows-Client-LanguagePack*.esd"
-if ($lpesd) { Write-Host "- $($lpesd.Name)"; .\files\7z.exe x $lpesd.FullName -olp | Out-Null; if ($lpesd.Name -match "(zh-CN|en-US)") { $lang = $Matches[0] } }
+if ($lpesd = (Get-ChildItem -Filter "Microsoft-Windows-Client-LanguagePack*.esd")) { Write-Host "- $($lpesd.Name)"; $lang = [System.IO.Path]::GetFileNameWithoutExtension($lpesd.Name).Substring($lpesd.Name.Length - 9, 5); .\files\7z.exe x $lpesd.FullName -olp | Out-Null }
 Write-Host ""
 
 Write-Host ""
-Write-Host "Mounting Image"
+Write-Host "Mounting image"
 dism /mount-wim /wimfile:install.wim /index:1 /mountdir:mount | Out-Null
 Write-Host "- install.wim"
 Write-Host ""
@@ -91,26 +90,26 @@ if ($Type -in "Normal", "vNext", "Legacy") {
 }
 
 Write-Host ""
-Write-Host "Converting SKU"
+Write-Host "Converting edition"
 dism /image:mount /apply-unattend:sxs\1.xml
 Write-Host ""
 
 Write-Host ""
-Write-Host "Adding Language Pack"
+Write-Host "Adding language pack"
 dism /image:mount /add-package:lp
 Write-Host ""
 Remove-Item -Path mount\Windows\*.xml -ErrorAction SilentlyContinue | Out-Null
 Copy-Item -Path mount\Windows\servicing\Editions\EnterpriseGEdition.xml -Destination mount\Windows\EnterpriseG.xml -ErrorAction SilentlyContinue | Out-Null
 
 Write-Host ""
-Write-Host "Setting SKU to Enterprise G"
+Write-Host "Setting edition to Enterprise G"
 dism /image:mount /apply-unattend:mount\Windows\EnterpriseG.xml | Out-Null
 dism /image:mount /set-productkey:YYVX9-NTFWV-6MDM3-9PT4T-4M68B | Out-Null
 dism /image:mount /get-currentedition
 Write-Host ""
 
 Write-Host ""
-Write-Host "Loading Registry Hive"
+Write-Host "Loading registry hive"
 reg load HKLM\zSOFTWARE mount\Windows\System32\config\SOFTWARE | Out-Null
 Write-Host "- zSOFTWARE"
 reg load HKLM\zSYSTEM mount\Windows\System32\config\SYSTEM | Out-Null
@@ -118,7 +117,7 @@ Write-Host "- zSYSTEM"
 Write-Host ""
 
 Write-Host ""
-Write-Host "Applying Registry Keys"
+Write-Host "Applying registry keys"
 
 # Add Microsoft Account support
 reg Add "HKLM\zSOFTWARE\Microsoft\PolicyManager\current\device\Accounts" /v "AllowMicrosoftAccountSignInAssistant" /t REG_DWORD /d "1" /f | Out-Null
@@ -129,17 +128,17 @@ reg add "HKLM\zSOFTWARE\Microsoft\Windows NT\CurrentVersion" /v EditionSubVersio
 Write-Host "- Producer branding"
 # Fix Windows Security
 reg add "HKLM\zSYSTEM\ControlSet001\Control\CI\Policy" /v "VerifiedAndReputablePolicyState" /t REG_DWORD /d 0 /f | Out-Null
-Write-Host "- Fix Windows Defender Service"
+Write-Host "- Fix Windows Defender service"
 # Turn off Defender Updates
 reg add "HKLM\zSOFTWARE\Policies\Microsoft\MRT" /v "DontOfferThroughWUAU" /t REG_DWORD /d "1" /f | Out-Null
 reg add "HKLM\zSOFTWARE\Policies\Microsoft\MRT" /v "DontReportInfectionInformation" /t REG_DWORD /d "1" /f | Out-Null
 reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates" /v "ForceUpdateFromMU" /t REG_DWORD /d "0" /f | Out-Null
 reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates" /v "UpdateOnStartUp" /t REG_DWORD /d "0" /f | Out-Null
-Write-Host "- Disable Defender Updates"
+Write-Host "- Disable Defender updates"
 Write-Host ""
 
 Write-Host ""
-Write-Host "Unloading Registry Hive"
+Write-Host "Unloading registry hive"
 reg unload HKLM\zSOFTWARE | Out-Null
 Write-Host "- zSOFTWARE"
 reg unload HKLM\zSYSTEM | Out-Null
@@ -147,7 +146,7 @@ Write-Host "- zSYSTEM"
 Write-Host ""
 
 Write-Host ""
-Write-Host "Adding License/EULA"
+Write-Host "Adding license"
 if ($Type -eq "vNext") {
     Write-Host "- Directory mount\Windows\System32\$lang\Licenses\_Default\EnterpriseG"
     Copy-Item -Path "files\License\license.rtf" -Destination "mount\Windows\System32\$lang\Licenses\_Default\EnterpriseG\license.rtf" -Force | Out-Null
@@ -230,27 +229,27 @@ if ($DisableFeatures -eq "True") {
     Write-Host ""
 }
 Write-Host ""
-Write-Host "Unmounting Install.wim Image"
+Write-Host "Unmounting install.wim Image"
 dism /unmount-wim /mountdir:mount /commit | Out-Null
 Write-Host "- install.wim"
 if ($LASTEXITCODE -ne 0) { exit 1 }
 Write-Host ""
 
 Write-Host ""
-Write-Host "Optimizing Install.wim Image"
+Write-Host "Optimizing install.wim Image"
 & "files\wimlib-imagex" optimize install.wim
 Write-Host ""
 
 Write-Host ""
-Write-Host "Setting WIM Infos"
+Write-Host "Setting WIM info"
 & "files\wimlib-imagex" info install.wim 1 --image-property NAME="Windows $Windows Enterprise G" --image-property DESCRIPTION="Windows $Windows Enterprise G" --image-property FLAGS="EnterpriseG" --image-property DISPLAYNAME="Windows $Windows Enterprise G" --image-property DISPLAYDESCRIPTION="Windows $Windows Enterprise G"
 Write-Host ""
 
 if ($WimToESD -eq "True") {
     Write-Host ""
-    Write-Host "Converting WIM to ESD"
+    Write-Host "Compressing WIM to ESD"
     dism /Export-Image /SourceImageFile:install.wim /SourceIndex:1 /DestinationImageFile:install.esd /Compress:Recovery | Out-Null
-    Write-Host "- Install.wim -> Install.esd"
+    Write-Host "- install.wim -> install.esd"
     if (Test-Path "install.wim") { Remove-Item "install.wim" | Out-Null }
     Write-Host ""
 }
