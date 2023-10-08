@@ -6,15 +6,20 @@
 
 # How to reconstruct Enterprise G
 
-- Copy `install.wim`, `Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD` and `Microsoft-Windows-Client-LanguagePack-Package-amd64-en-us.esd` to the same directory as the `Build.ps1` file
-> Make sure your install.wim file contains `NO updates` and `only includes the Pro Edition` You can build a clean ISO containing the install.wim with no updates and Pro only through **UUP Dump**. You find the `install.wim` inside the `sources` folder of your ISO.
-> You can download both .ESD files through **UUP Dump**.
+`Files required:`
+- install.wim (No updates, Pro only)
+- Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD
+- Microsoft-Windows-Client-LanguagePack-Package... .esd
 
-- If necessary, adjust the settings inside `config.json`.
+> .esd files are obtainable through **UUP Dump**.
 
-Run `Build.ps1` and let the magic happen!
+`How to get started:`
+1. Place all 3 files in the root directory of the script
+2. Run **Build.ps1** and wait for the opration to complete
 
-# Settings
+> Make sure your machine can execute PS scripts. **Set-ExecutionPolicy RemoteSigned**
+> 
+# Settings (config.json)
 
 ## ActivateWindows
 
@@ -66,10 +71,7 @@ Run `Build.ps1` and let the magic happen!
 - Factory resetting Windows will remove the additional registry keys that are responsible for Microsoft Account login support for Enterprise G etc. **[Heres how to add them back super easily.](https://pastebin.com/ye0ZyPcu)**
 - Inplace upgrade fails on some versions of Windows 11 (especially inplace upgrade from 19041 -> 22000/22621.) fix needed.
 
-# TODO
-- More script optimizations!
+# Todo
+- More script optimizations
 - Option to automatically integrate updates
-- Please feel free to let me you know if you have any ideas.
-
-` Please note that this project requires some basic knowledge. If you can't run the script, try: Set-ExecutionPolicy RemoteSigned `
-
+- Remove Edge at image level instead of at setup complete state
