@@ -21,7 +21,7 @@
 
 `How to get started:`
 1. Place all 3 files in the root directory of the script
-2. Run **Build.ps1** and wait for the opration to complete
+2. Run **Build.ps1** and wait for the reconstruction to complete
 
 > Make sure your machine can execute PS scripts. **Set-ExecutionPolicy RemoteSigned**
 >
