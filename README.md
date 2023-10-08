@@ -50,17 +50,17 @@
 
 ## RemoveApps
 
-- `True`: All specified inbox apps will be removed from the mounted image
+- `True`: All specified inbox apps will be removed from the image
 - `False`: Inbox apps wont be removed `Default`
 
 ## RemovePackages
 
-- `True`: All specified packages will be removed from the mounted image
+- `True`: All specified packages will be removed from the image
 - `False`: Packages wont be removed `Default`
 
 ## DisableFeatures
 
-- `True`: All specified features will be disabled from the mounted image
+- `True`: All specified features will be disabled from the image
 - `False`: Features wont be disabled `Default`
 
 ## ProvisionedPackagesToRemove
