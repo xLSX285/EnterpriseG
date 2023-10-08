@@ -38,7 +38,7 @@
 
 ## WimToESD 
 
-- `True`: install.wim image will be compressed to install.esd.
+- `True`: install.wim image will be compressed to install.esd
 - `False`: install.wim image wont be compressed `Default`
 
 ## RemoveEdge
