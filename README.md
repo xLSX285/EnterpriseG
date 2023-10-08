@@ -19,7 +19,7 @@
 - Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD
 - Microsoft-Windows-Client-LanguagePack-Package... .esd
 
-> .esd files are obtainable through **UUP Dump**.
+> .esd files are obtainable through **UUP Dump** or the [**releases**](https://github.com/xLSX285/EnterpriseG/releases) page.
 
 `How to get started:`
 1. Place all 3 files in the root directory of the script
