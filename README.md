@@ -50,30 +50,30 @@
 
 ## RemoveApps
 
-- `True`: All inbox apps will be removed from the mounted image
-- `False`: All inbox apps will remain installed `Default`
+- `True`: All specified inbox apps will be removed from the mounted image
+- `False`: Inbox apps wont be removed `Default`
 
 ## RemovePackages
 
-- `True`: All safe to remove packages will be removed from the mounted image
-- `False`: All other packages will remain installed `Default`
+- `True`: All specified packages will be removed from the mounted image
+- `False`: Packages wont be removed `Default`
 
 ## DisableFeatures
 
-- `True`: All features will be disabled from the mounted image
-- `False`: All features will remain enabled `Default`
+- `True`: All specified features will be disabled from the mounted image
+- `False`: Features wont be disabled `Default`
 
 ## ProvisionedPackagesToRemove
 
-- List of Inbox apps that will be removed if set to true in build.ps1
+- List of inbox apps that will be removed if set to true
 
 ## WindowsPackagesToRemove
 
-- List of Windows packages that will be removed if set to true in build.ps1
+- List of packages that will be removed if set to true
 
 ## WindowsFeaturesToDisable
 
-- List of features that will be removed if set to true in build.ps1
+- List of features that will be removed if set to true
 <div align="center">
   
 # Known "issues" with Enterprise G
