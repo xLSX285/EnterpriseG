@@ -1,31 +1,45 @@
 if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { Start-Process powershell.exe -ArgumentList " -NoProfile -ExecutionPolicy Bypass -File $($MyInvocation.MyCommand.Path)" -Verb RunAs; exit }
 
-$ScriptVersion = "v2.0.9"
+$ScriptVersion = "v2.1.0"
 $startTime = Get-Date
 Set-Location -Path $PSScriptRoot
 
-$requiredFiles = @("install.wim", "Microsoft-Windows-EditionSpecific*", "Microsoft-Windows-Client-LanguagePack*")
+$requiredFiles = @("Microsoft-Windows-EditionSpecific*", "Microsoft-Windows-Client-LanguagePack*")
 $missingFiles = $requiredFiles | Where-Object { -not (Test-Path $_) }
 
 if ($missingFiles) {
     Write-Host "Required files are missing: $($missingFiles -join ', ')"
     pause
-    exit 1
+    exit
 }
 
-$imageInfo = Get-WindowsImage -ImagePath "install.wim" -Index 1
+@("mount", "lp", "sxs", "iso\sources") | ForEach-Object { if (!(Test-Path $_ -PathType Container)) { New-Item -Path $_ -ItemType Directory -Force | Out-Null } }
+
+$iso = Get-ChildItem -Filter *.iso | Select-Object -First 1
+if ($iso -and (Test-Path $iso.FullName -PathType Leaf)) {
+    $isoFileName = (Get-Item $iso.FullName).Name
+    $mountResult = Mount-DiskImage -ImagePath $iso.FullName
+    $isoDriveLetter = ($mountResult | Get-Volume).DriveLetter
+    Copy-Item -Recurse ($isoDriveLetter + ":\*") iso\ -ErrorAction SilentlyContinue | Out-Null
+    Dismount-DiskImage -ImagePath $iso.FullName | Out-Null
+} elseif (Test-Path "install.wim" -PathType Leaf) {
+    Move-Item -Path "install.wim" -Destination "iso\sources\install.wim" | Out-Null
+} else {
+    @("mount", "lp", "sxs", "iso") | ForEach-Object { if (Test-Path $_ -ErrorAction SilentlyContinue) { Remove-Item $_ -Recurse -Force -ErrorAction SilentlyContinue | Out-Null } }
+    Write-Host "No install.wim image or ISO found."
+    pause
+    exit
+}
+
+$imageInfo = Get-WindowsImage -ImagePath "iso\sources\install.wim" -index:1
 $Windows = ($imageInfo.ImageName -split ' ')[1]
+$ProIndex = Get-WindowsImage -ImagePath "iso\sources\install.wim" | Where-Object { $_.ImageName -eq "Windows $Windows Pro" } | Select-Object -ExpandProperty ImageIndex; if (-not $ProIndex) { Write-Host "Image does not appear to contain Pro edition."; pause; exit }
 $Build = $imageInfo.Version
 $allowedSPBuilds = @(1, 1000, 1001)
 if ($imageInfo.SPBuild -notin $allowedSPBuilds) {
     Write-Host "Mounted image contains updates. Updates should be added after reconstruction."
     pause
-    exit 1
-}
-if ($imageInfo.ImageName -notlike "*Pro*") {
-    Write-Host "Mounted image does not appear to be the Pro edition."
-    pause
-    exit 1
+    exit
 }
 $detectBuildType = [int]($Build -replace '1[0-9]\.\d+\.', '')
 if ($detectBuildType -lt 19041) {
@@ -65,8 +79,6 @@ Write-Host "- RemovePackages: $RemovePackages" [$PackageCount Packages detected]
 Write-Host "- DisableFeatures: $DisableFeatures" [$FeatureCount Features detected]
 Write-Host ""
 
-@("mount", "lp", "sxs") | ForEach-Object { if (!(Test-Path $_ -PathType Container)) { New-Item -Path $_ -ItemType Directory | Out-Null } }
-
 Write-Host ""
 Write-Host "Extracting language pack & edition files"
 if ($editionesd = (Get-ChildItem -Filter "Microsoft-Windows-EditionSpecific*.esd").Name) { Write-Host "- $editionesd"; .\files\7z.exe x $editionesd -osxs | Out-Null }
@@ -75,7 +87,8 @@ Write-Host ""
 
 Write-Host ""
 Write-Host "Mounting image"
-dism /mount-wim /wimfile:install.wim /index:1 /mountdir:mount | Out-Null
+Set-ItemProperty -Path "iso\sources\install.wim" -Name IsReadOnly -Value $false
+dism /Mount-Wim /WimFile:"iso\sources\install.wim" /Index:$ProIndex /MountDir:"mount" | Out-Null
 Write-Host "- install.wim"
 Write-Host ""
 
@@ -148,11 +161,11 @@ Write-Host ""
 Write-Host ""
 Write-Host "Adding license"
 if ($Type -eq "vNext") {
-    Write-Host "- Directory mount\Windows\System32\$lang\Licenses\_Default\EnterpriseG"
+    $licensePath = "mount\Windows\System32\$lang\Licenses\_Default\EnterpriseG"; if (-not (Test-Path -Path $licensePath -PathType Container)) { New-Item -Path $licensePath -ItemType Directory -Force | Out-Null }
     Copy-Item -Path "files\License\license.rtf" -Destination "mount\Windows\System32\$lang\Licenses\_Default\EnterpriseG\license.rtf" -Force | Out-Null
 }
 else {
-    Write-Host "- Directory mount\Windows\System32\Licenses\neutral\_Default\EnterpriseG"
+    $licensePath = "mount\Windows\System32\Licenses\neutral\_Default\EnterpriseG"; if (-not (Test-Path -Path $licensePath -PathType Container)) { New-Item -Path $licensePath -ItemType Directory -Force | Out-Null }
     Copy-Item -Path "files\License\license.rtf" -Destination "mount\Windows\System32\Licenses\neutral\_Default\EnterpriseG\license.rtf" -Force | Out-Null
 }
 Write-Host "- license.rtf"
@@ -228,33 +241,46 @@ if ($DisableFeatures -eq "True") {
 	}
     Write-Host ""
 }
+
 Write-Host ""
 Write-Host "Unmounting install.wim Image"
 dism /unmount-wim /mountdir:mount /commit | Out-Null
 Write-Host "- install.wim"
-if ($LASTEXITCODE -ne 0) { exit 1 }
 Write-Host ""
 
 Write-Host ""
 Write-Host "Optimizing install.wim Image"
-& "files\wimlib-imagex" optimize install.wim
+& "files\wimlib-imagex" optimize iso\sources\install.wim
 Write-Host ""
 
 Write-Host ""
 Write-Host "Setting WIM info"
-& "files\wimlib-imagex" info install.wim 1 --image-property NAME="Windows $Windows Enterprise G" --image-property DESCRIPTION="Windows $Windows Enterprise G" --image-property FLAGS="EnterpriseG" --image-property DISPLAYNAME="Windows $Windows Enterprise G" --image-property DISPLAYDESCRIPTION="Windows $Windows Enterprise G"
+& "files\wimlib-imagex" info iso\sources\install.wim $ProIndex --image-property NAME="Windows $Windows Enterprise G" --image-property DESCRIPTION="Windows $Windows Enterprise G" --image-property FLAGS="EnterpriseG" --image-property DISPLAYNAME="Windows $Windows Enterprise G" --image-property DISPLAYDESCRIPTION="Windows $Windows Enterprise G"
 Write-Host ""
 
 if ($WimToESD -eq "True") {
     Write-Host ""
     Write-Host "Compressing WIM to ESD"
-    dism /Export-Image /SourceImageFile:install.wim /SourceIndex:1 /DestinationImageFile:install.esd /Compress:Recovery | Out-Null
+    dism /Export-Image /SourceImageFile:iso\sources\install.wim /SourceIndex:$ProIndex /DestinationImageFile:iso\sources\install.esd /Compress:Recovery | Out-Null
+    if (Test-Path "iso\sources\install.wim") { Remove-Item "iso\sources\install.wim" | Out-Null }
     Write-Host "- install.wim -> install.esd"
-    if (Test-Path "install.wim") { Remove-Item "install.wim" | Out-Null }
+    if ($iso){
+    } else {
+        Move-Item -Path "iso\sources\install.esd" -Destination "install.esd" | Out-Null
+    }      
     Write-Host ""
 }
 
-@("mount", "lp", "sxs") | ForEach-Object { if (Test-Path $_) { Remove-Item $_ -Recurse -Force | Out-Null } }
+if ($iso){
+    .\files\oscdimg.exe -m -o -u2 -udfver102 -bootdata:("2#p0,e,b" + "iso\boot\etfsboot.com#pEF,e,b" + "iso\efi\microsoft\boot\efisys.bin") "iso\" $Build-$Type-EnterpriseG.iso | Out-Null
+} else {
+    if (Test-Path "iso\sources\install.wim") { Move-Item -Path "iso\sources\install.wim" -Destination "install.wim" -Force | Out-Null }
+}
+
+@("mount", "lp", "sxs", "iso") | ForEach-Object { if (Test-Path $_ -ErrorAction SilentlyContinue) { Remove-Item $_ -Recurse -Force -ErrorAction SilentlyContinue | Out-Null } }
+if ($iso){
+    Remove-Item -Path $iso.FullName -Recurse -Force -ErrorAction SilentlyContinue -Confirm:$false | Out-Null
+}
 
 $endTime = Get-Date
 $elapsedTime = $endTime - $startTime
