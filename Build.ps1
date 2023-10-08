@@ -161,8 +161,8 @@ Write-Host ""
 Write-Host ""
 Write-Host "Adding license"
 if ($Type -eq "vNext") {
-    takeown /f "mount\Windows\System32\$lang\Licenses\_Default\EnterpriseG\placeholder.rtf"
-    icacls "mount\Windows\System32\$lang\Licenses\_Default\EnterpriseG\placeholder.rtf" /grant:r "$($env:USERNAME):(W)"
+    takeown /f "mount\Windows\System32\$lang\Licenses\_Default\EnterpriseG\placeholder.rtf" | Out-Null
+    icacls "mount\Windows\System32\$lang\Licenses\_Default\EnterpriseG\placeholder.rtf" /grant:r "$($env:USERNAME):(W)" | Out-Null
     Copy-Item -Path "files\License\license.rtf" -Destination "mount\Windows\System32\$lang\Licenses\_Default\EnterpriseG\placeholder.rtf" -Force | Out-Null
 }
 else {
