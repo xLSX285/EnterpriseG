@@ -7,7 +7,7 @@
 # How to reconstruct Enterprise G
 
 `Files required:`
-- install.wim (No updates, Pro only)
+- install.wim or ISO (No updates)
 - Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD
 - Microsoft-Windows-Client-LanguagePack-Package... .esd
 
