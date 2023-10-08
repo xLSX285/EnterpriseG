@@ -27,7 +27,7 @@
 >
 <div align="center">
   
-# Settings (config.json)
+# Config.json
 
 </div>
 
