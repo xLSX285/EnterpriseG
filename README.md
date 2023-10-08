@@ -79,15 +79,15 @@
 <div align="center">
   
 # Known "issues" with Enterprise G
+</div>
 - Enterprise G Insider Preview builds cannot be updated through Windows Update, you have to get another ISO and perform an inplace upgrade.
 - Factory resetting Windows will display an `OOBE_EULA` error during setup. **[How to fix (step 3)](https://www.howto-connect.com/fix-oobeeula-error-something-went-wrong-windows-10-or-11/)**
 - Factory resetting Windows will remove the additional registry keys that are responsible for Microsoft Account login support for Enterprise G etc. **[Heres how to add them back super easily.](https://pastebin.com/ye0ZyPcu)**
 - Inplace upgrade fails on some versions of Windows 11 (especially inplace upgrade from 19041 -> 22000/22621.) fix needed.
-</div>
 <div align="center">
   
 # Todo
+</div>
 - More script optimizations
 - Option to automatically integrate updates
 - Remove Edge at image level instead of at setup complete state
-</div>
