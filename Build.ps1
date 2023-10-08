@@ -1,6 +1,6 @@
 if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { Start-Process powershell.exe -ArgumentList " -NoProfile -ExecutionPolicy Bypass -File $($MyInvocation.MyCommand.Path)" -Verb RunAs; exit }
 
-$ScriptVersion = "v2.1.0"
+$ScriptVersion = "v2.1.1"
 $startTime = Get-Date
 Set-Location -Path $PSScriptRoot
 
@@ -161,8 +161,9 @@ Write-Host ""
 Write-Host ""
 Write-Host "Adding license"
 if ($Type -eq "vNext") {
-    $licensePath = "mount\Windows\System32\$lang\Licenses\_Default\EnterpriseG"; if (-not (Test-Path -Path $licensePath -PathType Container)) { New-Item -Path $licensePath -ItemType Directory -Force | Out-Null }
-    Copy-Item -Path "files\License\license.rtf" -Destination "mount\Windows\System32\$lang\Licenses\_Default\EnterpriseG\license.rtf" -Force | Out-Null
+    takeown /f "mount\Windows\System32\$lang\Licenses\_Default\EnterpriseG\placeholder.rtf"
+    icacls "mount\Windows\System32\$lang\Licenses\_Default\EnterpriseG\placeholder.rtf" /grant:r "$($env:USERNAME):(W)"
+    Copy-Item -Path "files\License\license.rtf" -Destination "mount\Windows\System32\$lang\Licenses\_Default\EnterpriseG\placeholder.rtf" -Force | Out-Null
 }
 else {
     $licensePath = "mount\Windows\System32\Licenses\neutral\_Default\EnterpriseG"; if (-not (Test-Path -Path $licensePath -PathType Container)) { New-Item -Path $licensePath -ItemType Directory -Force | Out-Null }
