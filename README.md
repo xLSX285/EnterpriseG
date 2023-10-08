@@ -65,15 +65,15 @@
 
 ## ProvisionedPackagesToRemove
 
-- List of inbox apps that will be removed if set to true
+- Array of inbox apps that will be removed if set to true
 
 ## WindowsPackagesToRemove
 
-- List of packages that will be removed if set to true
+- Array of packages that will be removed if set to true
 
 ## WindowsFeaturesToDisable
 
-- List of features that will be removed if set to true
+- Array of features that will be removed if set to true
 <div align="center">
   
 # Known "issues" with Enterprise G
