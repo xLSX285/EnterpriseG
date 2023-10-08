@@ -63,17 +63,6 @@
 - `True`: All specified features in `WindowsFeaturesToDisable` will be disabled from the image
 - `False`: Features wont be disabled `Default`
 
-## ProvisionedPackagesToRemove
-
-- Array of inbox apps that will be removed if `RemoveApps` is set to true
-
-## WindowsPackagesToRemove
-
-- Array of packages that will be removed if `RemovePackages` is set to true
-
-## WindowsFeaturesToDisable
-
-- Array of features that will be removed if `DisableFeatures` is set to true
 <div align="center">
   
 # Known "issues" with Enterprise G
