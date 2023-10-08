@@ -50,30 +50,30 @@
 
 ## RemoveApps
 
-- `True`: All specified inbox apps will be removed from the image
+- `True`: All specified inbox apps in `ProvisionedPackagesToRemove` will be removed from the image
 - `False`: Inbox apps wont be removed `Default`
 
 ## RemovePackages
 
-- `True`: All specified packages will be removed from the image
+- `True`: All specified packages in `WindowsPackagesToRemove` will be removed from the image
 - `False`: Packages wont be removed `Default`
 
 ## DisableFeatures
 
-- `True`: All specified features will be disabled from the image
+- `True`: All specified features in `WindowsFeaturesToDisable` will be disabled from the image
 - `False`: Features wont be disabled `Default`
 
 ## ProvisionedPackagesToRemove
 
-- Array of inbox apps that will be removed if RemoveApps is set to true
+- Array of inbox apps that will be removed if `RemoveApps` is set to true
 
 ## WindowsPackagesToRemove
 
-- Array of packages that will be removed if RemovePackages is set to true
+- Array of packages that will be removed if `RemovePackages` is set to true
 
 ## WindowsFeaturesToDisable
 
-- Array of features that will be removed if DisableFeatures is set to true
+- Array of features that will be removed if `DisableFeatures` is set to true
 <div align="center">
   
 # Known "issues" with Enterprise G
