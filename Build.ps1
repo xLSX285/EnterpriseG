@@ -1,17 +1,13 @@
 if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { Start-Process powershell.exe -ArgumentList " -NoProfile -ExecutionPolicy Bypass -File $($MyInvocation.MyCommand.Path)" -Verb RunAs; exit }
-
-$ScriptVersion = "v2.1.1"
+$ScriptVersion = "v2.1.2"
+[System.Console]::Title = "Enterprise G Reconstruction $ScriptVersion"
 $startTime = Get-Date
 Set-Location -Path $PSScriptRoot
 
 $requiredFiles = @("Microsoft-Windows-EditionSpecific*", "Microsoft-Windows-Client-LanguagePack*")
 $missingFiles = $requiredFiles | Where-Object { -not (Test-Path $_) }
 
-if ($missingFiles) {
-    Write-Host "Required files are missing: $($missingFiles -join ', ')"
-    pause
-    exit
-}
+if ($missingFiles) { [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null; [Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] | Out-Null; $toastXml = [Windows.Data.Xml.Dom.XmlDocument]::new(); $toastTemplate = "<toast><visual><binding template='ToastText02'><text id='1'>Reconstruction failed</text><text id='2'>Required files are missing: $($missingFiles -join ', ')</text></binding></visual></toast>"; $toastXml.LoadXml($toastTemplate); $toast = [Windows.UI.Notifications.ToastNotification]::new($toastXml); [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("Enterprise G Reconstruction $ScriptVersion").Show($toast); Write-Host "Required files are missing: $($missingFiles -join ', ')"; pause; exit }
 
 @("mount", "lp", "sxs", "iso\sources") | ForEach-Object { if (!(Test-Path $_ -PathType Container)) { New-Item -Path $_ -ItemType Directory -Force | Out-Null } }
 
@@ -25,26 +21,21 @@ if ($iso -and (Test-Path $iso.FullName -PathType Leaf)) {
 } elseif (Test-Path "install.wim" -PathType Leaf) {
     Move-Item -Path "install.wim" -Destination "iso\sources\install.wim" | Out-Null
 } else {
-    @("mount", "lp", "sxs", "iso") | ForEach-Object { if (Test-Path $_ -ErrorAction SilentlyContinue) { Remove-Item $_ -Recurse -Force -ErrorAction SilentlyContinue | Out-Null } }
-    Write-Host "No install.wim image or ISO found."
-    pause
-    exit
+    @("mount", "lp", "sxs", "iso") | ForEach-Object { Remove-Item $_ -Recurse -Force -ErrorAction SilentlyContinue }
+    [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null; [Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] | Out-Null; $toastXml = [Windows.Data.Xml.Dom.XmlDocument]::new(); $toastTemplate = "<toast><visual><binding template='ToastText02'><text id='1'>Reconstruction failed</text><text id='2'>No install.wim image or ISO found.</text></binding></visual></toast>"; $toastXml.LoadXml($toastTemplate); $toast = [Windows.UI.Notifications.ToastNotification]::new($toastXml); [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("Enterprise G Reconstruction $ScriptVersion").Show($toast); Write-Host "No install.wim image or ISO found."; pause; exit
 }
 
 $imageInfo = Get-WindowsImage -ImagePath "iso\sources\install.wim" -index:1
 $Windows = ($imageInfo.ImageName -split ' ')[1]
-$ProIndex = Get-WindowsImage -ImagePath "iso\sources\install.wim" | Where-Object { $_.ImageName -eq "Windows $Windows Pro" } | Select-Object -ExpandProperty ImageIndex; if (-not $ProIndex) { Write-Host "Image does not appear to contain Pro edition."; pause; exit }
+$Arch = if ($imageInfo.Architecture -eq 9) { "amd64" } elseif ($imageInfo.Architecture -eq 12) { "arm64" } else { "x86" }
+$ProIndex = Get-WindowsImage -ImagePath "iso\sources\install.wim" | Where-Object { $_.ImageName -eq "Windows $Windows Pro" } | Select-Object -ExpandProperty ImageIndex; if (-not $ProIndex) { [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null; [Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] | Out-Null; $toastXml = [Windows.Data.Xml.Dom.XmlDocument]::new(); $toastTemplate = "<toast><visual><binding template='ToastText02'><text id='1'>Reconstruction failed</text><text id='2'>Image does not appear to contain Pro edition.</text></binding></visual></toast>"; $toastXml.LoadXml($toastTemplate); $toast = [Windows.UI.Notifications.ToastNotification]::new($toastXml); [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("Enterprise G Reconstruction $ScriptVersion").Show($toast); Write-Host "Image does not appear to contain Pro edition."; @("mount", "lp", "sxs", "iso") | ForEach-Object { Remove-Item $_ -Recurse -Force -ErrorAction SilentlyContinue }; pause; exit }
 $Build = $imageInfo.Version
-$allowedSPBuilds = @(1, 1000, 1001)
-if ($imageInfo.SPBuild -notin $allowedSPBuilds) {
-    Write-Host "Mounted image contains updates. Updates should be added after reconstruction."
-    pause
-    exit
-}
-$detectBuildType = [int]($Build -replace '1[0-9]\.\d+\.', '')
-if ($detectBuildType -lt 19041) {
+if ($imageInfo.SPBuild -notmatch "^(1|1000|1001|1010|1011)$") { [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null; [Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] | Out-Null; $toastXml = [Windows.Data.Xml.Dom.XmlDocument]::new(); $toastTemplate = "<toast><visual><binding template='ToastText02'><text id='1'>Reconstruction failed</text><text id='2'>Image contains updates. Updates should be added after reconstruction.</text></binding></visual></toast>"; $toastXml.LoadXml($toastTemplate); $toast = [Windows.UI.Notifications.ToastNotification]::new($toastXml); [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("Enterprise G Reconstruction $ScriptVersion").Show($toast); Write-Host "Image contains updates. Updates should be added after reconstruction." ; @("mount", "lp", "sxs", "iso") | ForEach-Object { Remove-Item $_ -Recurse -Force -ErrorAction SilentlyContinue }; pause ; exit }
+
+$detectedBuild = [int]($Build -replace '1[0-9]\.\d+\.', '')
+if ($detectedBuild -lt 19041) {
     $Type = "Legacy"
-} elseif ($detectBuildType -lt 25398) {
+} elseif ($detectedBuild -lt 25398) {
     $Type = "Normal"
 } else {
     $Type = "vNext"
@@ -70,6 +61,7 @@ Write-Host ""
 Write-Host "Loading configuration"
 Write-Host "- Windows: $Windows"
 Write-Host "- Build: $Build"
+Write-Host "- Arch: $Arch"
 Write-Host "- Type: $Type"
 Write-Host "- ActivateWindows: $ActivateWindows"
 Write-Host "- WimToESD: $WimToESD"
@@ -95,11 +87,12 @@ Write-Host ""
 if ($Type -in "Normal", "vNext", "Legacy") {
     Copy-Item -Path "files\sxs\$Type\*.*" -Destination "sxs\" -Force | Out-Null
 
-    Rename-Item -Path "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~10.0.22621.1.mum" -NewName "Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~$Build.mum" -Force | Out-Null
-    Rename-Item -Path "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~10.0.22621.1.cat" -NewName "Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~$Build.cat" -Force | Out-Null
+    Rename-Item -Path "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~10.0.22621.1.mum" -NewName "Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~$Arch~~$Build.mum" -Force | Out-Null
+    Rename-Item -Path "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~10.0.22621.1.cat" -NewName "Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~$Arch~~$Build.cat" -Force | Out-Null
 
-    (Get-Content "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~$Build.mum") -replace '10\.0\.22621\.1', $Build | Set-Content "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~amd64~~$Build.mum" -Force | Out-Null
-    (Get-Content "sxs\1.xml") -replace '10\.0\.22621\.1', $Build | Set-Content "sxs\1.xml" -Force | Out-Null
+    (Get-Content "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~$Arch~~$Build.mum") -replace '10\.0\.22621\.1', $Build -replace 'amd64', $Arch | Set-Content "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~$Arch~~$Build.mum" -Force | Out-Null
+    (Get-Content "sxs\1.xml") -replace '10\.0\.22621\.1', $Build -replace 'amd64', $Arch | Set-Content "sxs\1.xml" -Force | Out-Null
+
 }
 
 Write-Host ""
@@ -185,14 +178,8 @@ if ($ActivateWindows -eq "True") {
 if ($RemoveEdge -eq "True") {
     Write-Host ""
     Write-Host "Removing Edge and WebView2 at setup complete"
-    $ScriptsDirectory = "mount\Windows\Setup\Scripts"
-    if (!(Test-Path -Path $ScriptsDirectory -PathType Container)) {
-        New-Item -ItemType Directory -Path $ScriptsDirectory -Force | Out-Null
-    }
-    $setupCompleteScript = "mount\Windows\Setup\Scripts\SetupComplete.cmd"
-    if (!(Test-Path -Path $setupCompleteScript -PathType Leaf)) {
-        Copy-Item -Path "files\Scripts\SetupComplete.cmd" -Destination $setupCompleteScript -Force | Out-Null
-    }
+    if (!(Test-Path "mount\Windows\Setup\Scripts" -Type Container)) {New-Item "mount\Windows\Setup\Scripts" -ItemType Directory -Force | Out-Null}
+    if (!(Test-Path "mount\Windows\Setup\Scripts\SetupComplete.cmd" -Type Leaf)) { Copy-Item "files\Scripts\SetupComplete.cmd" -Destination "mount\Windows\Setup\Scripts\SetupComplete.cmd" -Force | Out-Null }
     Copy-Item -Path "files\Scripts\RemoveEdge.cmd" -Destination "mount\Windows\Setup\Scripts\RemoveEdge.cmd" -Force | Out-Null
     Write-Host "- RemoveEdge.cmd"
     Write-Host ""
@@ -273,7 +260,7 @@ if ($WimToESD -eq "True") {
 }
 
 if ($iso){
-    .\files\oscdimg.exe -m -o -u2 -udfver102 -bootdata:("2#p0,e,b" + "iso\boot\etfsboot.com#pEF,e,b" + "iso\efi\microsoft\boot\efisys.bin") "iso\" $Build-$Type-EnterpriseG.iso | Out-Null
+    .\files\oscdimg.exe -m -o -u2 -udfver102 -bootdata:("2#p0,e,b" + "iso\boot\etfsboot.com#pEF,e,b" + "iso\efi\microsoft\boot\efisys.bin") "iso\" $Build-$Type-$Arch-EnterpriseG-.iso | Out-Null
 } else {
     if (Test-Path "iso\sources\install.wim") { Move-Item -Path "iso\sources\install.wim" -Destination "install.wim" -Force | Out-Null }
 }
@@ -288,7 +275,11 @@ $elapsedTime = $endTime - $startTime
 $elapsedMinutes = [math]::Floor($elapsedTime.TotalMinutes)
 $elapsedSeconds = $elapsedTime.Seconds
 Write-Host ""
+[Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null; [Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] | Out-Null; $toastXml = [Windows.Data.Xml.Dom.XmlDocument]::new(); $toastTemplate = "<toast><visual><binding template='ToastText02'><text id='1'>Reconstruction successful</text><text id='2'>Completed in $($elapsedMinutes) minutes and $($elapsedSeconds) seconds.</text></binding></visual></toast>"; $toastXml.LoadXml($toastTemplate); $toast = [Windows.UI.Notifications.ToastNotification]::new($toastXml); [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("Enterprise G Reconstruction $ScriptVersion").Show($toast)
 Write-Host "Reconstruction completed in $($elapsedMinutes) minutes and $($elapsedSeconds) seconds."
+if ($iso){
+    Write-Host "$Build-$Type-$Arch-EnterpriseG-.iso has been created."
+}
 Write-Host ""
 pause
 exit
