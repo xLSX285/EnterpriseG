@@ -259,7 +259,7 @@ if ($WimToESD -eq "True") {
 }
 
 if ($iso){
-    .\files\oscdimg.exe -m -o -u2 -udfver102 -bootdata:("2#p0,e,b" + "iso\boot\etfsboot.com#pEF,e,b" + "iso\efi\microsoft\boot\efisys.bin") "iso\" $Build-$Type-$Arch-EnterpriseG-.iso | Out-Null
+    .\files\oscdimg.exe -m -o -u2 -udfver102 -bootdata:("2#p0,e,b" + "iso\boot\etfsboot.com#pEF,e,b" + "iso\efi\microsoft\boot\efisys.bin") "iso\" $Build-$Type-$Arch-EnterpriseG.iso | Out-Null
 } else {
     if (Test-Path "iso\sources\install.wim") { Move-Item -Path "iso\sources\install.wim" -Destination "install.wim" -Force | Out-Null }
 }
