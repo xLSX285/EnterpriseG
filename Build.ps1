@@ -92,7 +92,6 @@ if ($Type -in "Normal", "vNext", "Legacy") {
 
     (Get-Content "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~$Arch~~$Build.mum") -replace '10\.0\.22621\.1', $Build -replace 'amd64', $Arch | Set-Content "sxs\Microsoft-Windows-EnterpriseGEdition~31bf3856ad364e35~$Arch~~$Build.mum" -Force | Out-Null
     (Get-Content "sxs\1.xml") -replace '10\.0\.22621\.1', $Build -replace 'amd64', $Arch | Set-Content "sxs\1.xml" -Force | Out-Null
-
 }
 
 Write-Host ""
@@ -278,7 +277,7 @@ Write-Host ""
 [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null; [Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] | Out-Null; $toastXml = [Windows.Data.Xml.Dom.XmlDocument]::new(); $toastTemplate = "<toast><visual><binding template='ToastText02'><text id='1'>Reconstruction successful</text><text id='2'>Completed in $($elapsedMinutes) minutes and $($elapsedSeconds) seconds.</text></binding></visual></toast>"; $toastXml.LoadXml($toastTemplate); $toast = [Windows.UI.Notifications.ToastNotification]::new($toastXml); [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("Enterprise G Reconstruction $ScriptVersion").Show($toast)
 Write-Host "Reconstruction completed in $($elapsedMinutes) minutes and $($elapsedSeconds) seconds."
 if ($iso){
-    Write-Host "$Build-$Type-$Arch-EnterpriseG-.iso has been created."
+    Write-Host "$Build-$Type-$Arch-EnterpriseG.iso has been created."
 }
 Write-Host ""
 pause
