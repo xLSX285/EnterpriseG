@@ -43,7 +43,7 @@
 
 ## RemoveEdge
 
-- `True`: Microsoft Edge and WebView2 will be removed at setup complete `Default | Official`
+- `True`: Microsoft Edge and WebView2 will be removede `Official`
 - `False`: Microsoft Edge and WebView2 wont be removed
 
 ## RemoveApps
@@ -78,4 +78,3 @@
 
 - More script optimizations
 - Option to automatically integrate updates
-- Remove Edge at image level instead of at setup complete state
