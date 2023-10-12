@@ -177,9 +177,9 @@ if ($ActivateWindows -eq "True") {
 if ($RemoveEdge -eq "True") {
     Write-Host ""
     Write-Host "Removing Edge and WebView2"
-    Set-Content -Path "files\edge.txt" -Value "EdgeChromium`r`nEdgeWebView"
-    .\files\ToolKitHelper.exe mount .\files\edge.txt
-    Remove-Item -Path "files\edge.txt"
+    Set-Content -Path "files\edge.txt" -Value "EdgeChromium`r`nEdgeWebView" | Out-Null
+    .\files\ToolKitHelper.exe mount .\files\edge.txt | Out-Null
+    Remove-Item -Path "files\edge.txt" | Out-Null
     Write-Host ""
 }
 
