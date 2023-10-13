@@ -1,5 +1,5 @@
 if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { Start-Process powershell.exe -ArgumentList " -NoProfile -ExecutionPolicy Bypass -File $($MyInvocation.MyCommand.Path)" -Verb RunAs; exit }
-$ScriptVersion = "v2.1.3"
+$ScriptVersion = "v2.1.2"
 [System.Console]::Title = "Enterprise G Reconstruction $ScriptVersion"
 $startTime = Get-Date
 Set-Location -Path $PSScriptRoot
@@ -176,10 +176,11 @@ if ($ActivateWindows -eq "True") {
 
 if ($RemoveEdge -eq "True") {
     Write-Host ""
-    Write-Host "Removing Edge and WebView2"
-    Set-Content -Path "files\edge.txt" -Value "EdgeChromium`r`nEdgeWebView" | Out-Null
-    .\files\ToolKitHelper.exe mount .\files\edge.txt | Out-Null
-    Remove-Item -Path "files\edge.txt" | Out-Null
+    Write-Host "Removing Edge and WebView2 at setup complete"
+    if (!(Test-Path "mount\Windows\Setup\Scripts" -Type Container)) {New-Item "mount\Windows\Setup\Scripts" -ItemType Directory -Force | Out-Null}
+    if (!(Test-Path "mount\Windows\Setup\Scripts\SetupComplete.cmd" -Type Leaf)) { Copy-Item "files\Scripts\SetupComplete.cmd" -Destination "mount\Windows\Setup\Scripts\SetupComplete.cmd" -Force | Out-Null }
+    Copy-Item -Path "files\Scripts\RemoveEdge.cmd" -Destination "mount\Windows\Setup\Scripts\RemoveEdge.cmd" -Force | Out-Null
+    Write-Host "- RemoveEdge.cmd"
     Write-Host ""
 }
 
