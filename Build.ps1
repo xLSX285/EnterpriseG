@@ -1,5 +1,5 @@
 if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { Start-Process powershell.exe -ArgumentList " -NoProfile -ExecutionPolicy Bypass -File $($MyInvocation.MyCommand.Path)" -Verb RunAs; exit }
-$ScriptVersion = "v2.1.5"
+$ScriptVersion = "v2.2.0"
 [System.Console]::Title = "Enterprise G Reconstruction $ScriptVersion"
 $startTime = Get-Date
 Set-Location -Path $PSScriptRoot
