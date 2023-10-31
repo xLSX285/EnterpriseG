@@ -51,6 +51,14 @@
 - `True`: All specified inbox apps in `ProvisionedPackagesToRemove` will be removed from the image
 - `False`: Inbox apps wont be removed `Default`
 
+## AddUpdates
+
+- `True`: Updates will be added to install.wim & boot.wim (if available)
+- `False`: Don't add updates to windows and keep it at base. (xxxxx.1)
+
+Windows 11 `LCU, EP, NDP35-481, OOBE (Optional), SSU (Optional) `
+Windows 10 `LCU, EP, NDP35-481, NDP481Base, OOBE (Optional), SSU (Optional)`
+
 ## RemovePackages
 
 - `True`: All specified packages in `WindowsPackagesToRemove` will be removed from the image
@@ -72,9 +80,3 @@
 - Inplace upgrade fails on some builds of Windows (e.g 19041 -> 22000/22621.) fix needed.
   
 <div align="center">
-  
-# Todo
-</div>
-
-- More script optimizations
-- Option to automatically integrate updates
