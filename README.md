@@ -43,8 +43,8 @@
 
 ## RemoveEdge
 
-- `True`: Microsoft Edge and WebView2 will be removed `Official`
-- `False`: Microsoft Edge and WebView2 wont be removed
+- `True`: Microsoft Edge will be removed `Official`
+- `False`: Microsoft Edge remains installed
 
 ## RemoveApps
 
