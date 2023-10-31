@@ -56,8 +56,8 @@
 - `True`: Updates will be added to install.wim & boot.wim (if available)
 - `False`: Don't add updates to windows and keep it at base. (xxxxx.1)
 
-Windows 11 `LCU, EP, NDP35-481, OOBE (Optional), SSU (Optional) `
-Windows 10 `LCU, EP, NDP35-481, NDP481Base, OOBE (Optional), SSU (Optional)`
+- Windows 11 `LCU, EP, NDP35-481, OOBE (Optional), SSU (Optional)`
+- Windows 10 `LCU, EP, NDP35-481, NDP481Base, OOBE (Optional), SSU (Optional)`
 
 ## RemovePackages
 
