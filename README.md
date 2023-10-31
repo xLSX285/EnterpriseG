@@ -33,8 +33,8 @@
 
 ## ActivateWindows
 
-- `True`: Windows will be activated using KMS38 method
-- `False`: Windows wont be activated `Default`
+- `True`: Windows will be activated using KMS38 method `Default`
+- `False`: Windows wont be activated
 
 ## WimToESD 
 
