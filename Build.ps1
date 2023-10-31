@@ -1,5 +1,5 @@
 if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { Start-Process powershell.exe -ArgumentList " -NoProfile -ExecutionPolicy Bypass -File $($MyInvocation.MyCommand.Path)" -Verb RunAs; exit }
-$ScriptVersion = "v2.1.5"
+$ScriptVersion = "v2.1.6"
 [System.Console]::Title = "Enterprise G Reconstruction $ScriptVersion"
 $startTime = Get-Date
 Set-Location -Path $PSScriptRoot
@@ -141,7 +141,7 @@ reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates" /
 reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates" /v "UpdateOnStartUp" /t REG_DWORD /d "0" /f | Out-Null
 Write-Host "- Disable Defender updates"
 # Hide settings pages
-reg add "HKLM\zSOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "SettingsPageVisibility" /t REG_SZ /d "hide:activation;recovery;windowsinsider-optin;windowsinsider" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "SettingsPageVisibility" /t REG_SZ /d "hide:activation;recovery" /f | Out-Null
 Write-Host "- Disable useless pages in settings"
 Write-Host ""
 
@@ -171,7 +171,7 @@ if ($ActivateWindows -eq "True") {
     Write-Host ""
     New-Item -ItemType Directory -Path "mount\Windows\Setup\Scripts" -Force | Out-Null
     Copy-Item -Path "files\Scripts\SetupComplete.cmd" -Destination "mount\Windows\Setup\Scripts\SetupComplete.cmd" -Force | Out-Null
-    Write-Host "Adding activation for Windows using KMS38"
+    Write-Host "Adding activation for Windows"
     Copy-Item -Path "files\Scripts\activate_kms38.cmd" -Destination "mount\Windows\Setup\Scripts\activate_kms38.cmd" -Force | Out-Null
     Write-Host "- activate_kms38.cmd"
     Write-Host ""
