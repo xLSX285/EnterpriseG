@@ -66,15 +66,4 @@
 # Known "issues" with Enterprise G
 </div>
 
-- Insider Preview builds require an ISO for in-place upgrades; Windows Update can't update them.
-- Resetting Windows on older builds than 25398 will display an `OOBEEULA` error during setup. **[Fix](https://www.howto-connect.com/fix-oobeeula-error-something-went-wrong-windows-10-or-11/)**
-- Resetting Windows removes registry keys for MS login support and more. **[Fix](https://pastebin.com/GXu8phAT)**
 - Inplace upgrade fails on some builds of Windows (e.g 19041 -> 22000/22621.) fix needed.
-  
-<div align="center">
-  
-# Todo
-</div>
-
-- More script optimizations
-- Option to automatically integrate updates
