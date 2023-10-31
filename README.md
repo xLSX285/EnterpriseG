@@ -55,6 +55,8 @@
 
 - `True`: All specified packages in `WindowsPackagesToRemove` will be removed from the image
 - `False`: Packages wont be removed `Default`
+- `You may experience couple error messages when it's removing packages, that's completely fine.`
+
 
 ## DisableFeatures
 
