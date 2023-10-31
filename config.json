@@ -1,7 +1,8 @@
 {
-    "ActivateWindows": false,
+    "ActivateWindows": true,
     "WimToESD": false,
     "RemoveEdge": true,
+    "AddUpdates": false,
     
     "RemoveApps": false,
     "ProvisionedPackagesToRemove": [

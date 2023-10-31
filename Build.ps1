@@ -1,5 +1,5 @@
 if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { Start-Process powershell.exe -ArgumentList " -NoProfile -ExecutionPolicy Bypass -File $($MyInvocation.MyCommand.Path)" -Verb RunAs; exit }
-$ScriptVersion = "v2.1.4"
+$ScriptVersion = "v2.1.5"
 [System.Console]::Title = "Enterprise G Reconstruction $ScriptVersion"
 $startTime = Get-Date
 Set-Location -Path $PSScriptRoot
@@ -9,7 +9,7 @@ $missingFiles = $requiredFiles | Where-Object { -not (Test-Path $_) }
 
 if ($missingFiles) { [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null; [Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] | Out-Null; $toastXml = [Windows.Data.Xml.Dom.XmlDocument]::new(); $toastTemplate = "<toast><visual><binding template='ToastText02'><text id='1'>Reconstruction failed</text><text id='2'>Required files are missing: $($missingFiles -join ', ')</text></binding></visual></toast>"; $toastXml.LoadXml($toastTemplate); $toast = [Windows.UI.Notifications.ToastNotification]::new($toastXml); [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("Enterprise G Reconstruction $ScriptVersion").Show($toast); Write-Host "Required files are missing: $($missingFiles -join ', ')"; pause; exit }
 
-@("mount", "lp", "sxs", "iso\sources") | ForEach-Object { if (!(Test-Path $_ -PathType Container)) { New-Item -Path $_ -ItemType Directory -Force | Out-Null } }
+@("mount", "mountRE", "lp", "sxs", "iso\sources") | ForEach-Object { if (!(Test-Path $_ -PathType Container)) { New-Item -Path $_ -ItemType Directory -Force | Out-Null } }
 
 $iso = Get-ChildItem -Filter *.iso | Select-Object -First 1
 if ($iso -and (Test-Path $iso.FullName -PathType Leaf)) {
@@ -21,7 +21,7 @@ if ($iso -and (Test-Path $iso.FullName -PathType Leaf)) {
 } elseif (Test-Path "install.wim" -PathType Leaf) {
     Move-Item -Path "install.wim" -Destination "iso\sources\install.wim" | Out-Null
 } else {
-    @("mount", "lp", "sxs", "iso") | ForEach-Object { Remove-Item $_ -Recurse -Force -ErrorAction SilentlyContinue }
+    @("mount", "mountRE", "lp", "sxs", "iso") | ForEach-Object { Remove-Item $_ -Recurse -Force -ErrorAction SilentlyContinue }
     [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null; [Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] | Out-Null; $toastXml = [Windows.Data.Xml.Dom.XmlDocument]::new(); $toastTemplate = "<toast><visual><binding template='ToastText02'><text id='1'>Reconstruction failed</text><text id='2'>No install.wim image or ISO found.</text></binding></visual></toast>"; $toastXml.LoadXml($toastTemplate); $toast = [Windows.UI.Notifications.ToastNotification]::new($toastXml); [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("Enterprise G Reconstruction $ScriptVersion").Show($toast); Write-Host "No install.wim image or ISO found."; pause; exit
 }
 
@@ -45,6 +45,7 @@ $config = (Get-Content "config.json" -Raw) | ConvertFrom-Json
 $ActivateWindows = $config.ActivateWindows
 $WimToESD = $config.WimToESD
 $RemoveEdge = $config.RemoveEdge
+$AddUpdates = $config.AddUpdates
 $RemoveApps = $config.RemoveApps
 $unwantedProvisionedPackages = $config.ProvisionedPackagesToRemove
 $AppCount = $unwantedProvisionedPackages.Count
@@ -66,6 +67,7 @@ Write-Host "- Type: $Type"
 Write-Host "- ActivateWindows: $ActivateWindows"
 Write-Host "- WimToESD: $WimToESD"
 Write-Host "- RemoveEdge: $RemoveEdge"
+Write-Host "- AddUpdates: $AddUpdates"
 Write-Host "- RemoveApps: $RemoveApps" [$AppCount Apps detected]
 Write-Host "- RemovePackages: $RemovePackages" [$PackageCount Packages detected]
 Write-Host "- DisableFeatures: $DisableFeatures" [$FeatureCount Features detected]
@@ -229,11 +231,243 @@ if ($DisableFeatures -eq "True") {
     Write-Host ""
 }
 
+if ($AddUpdates -eq "True") {
+
+    Write-Host ""
+    Write-Host "Unmounting install.wim Image"
+    dism /unmount-wim /mountdir:mount /commit
+    Write-Host "- install.wim"
+    Write-Host ""
+
+    dism /Mount-Wim /WimFile:"iso\sources\install.wim" /Index:$ProIndex /MountDir:"mount" | Out-Null
+
+    Write-Host ""
+    Write-Host "Adding updates to sources\install.wim"
+
+    if (Test-Path -Path "files\Updates\SSU" -PathType Container) {
+    $files = Get-ChildItem -Path "files\Updates\SSU" -File | Where-Object { $_.Extension -match '\.(cab|msu)$' }
+    
+    if ($files.Count -gt 0) {
+        Write-Host "Found $($files.Count) .cab or .msu files in Updates\SSU. Continue processing..."
+        Write-Host "- SSU"
+        DISM /Image:mount /Add-Package /PackagePath:files\Updates\SSU
+    }
+}
+
+if (Test-Path -Path "files\Updates\LCU" -PathType Container) {
+    $files = Get-ChildItem -Path "files\Updates\LCU" -File | Where-Object { $_.Extension -match '\.(cab|msu)$' }
+    
+    if ($files.Count -gt 0) {
+        Write-Host "Found $($files.Count) .cab or .msu files in Updates\LCU. Continue processing..."
+        Write-Host "- LCU"
+        DISM /Image:mount /Add-Package /PackagePath:files\Updates\LCU
+    }
+}
+
+    if (Test-Path -Path "files\Updates\NDP35-481" -PathType Container) {
+    $files = Get-ChildItem -Path "files\Updates\NDP35-481" -File | Where-Object { $_.Extension -match '\.(cab|msu)$' }
+    
+    if ($files.Count -gt 0) {
+        Write-Host "Found $($files.Count) .cab or .msu files in Updates\NDP35-481. Continue processing..."
+        Write-Host "- NDP35-481"
+        DISM /Image:mount /Add-Package /PackagePath:files\Updates\NDP35-481
+    }
+}
+
+if (Test-Path -Path "files\Updates\NDP481Base" -PathType Container) {
+    $files = Get-ChildItem -Path "files\Updates\NDP481Base" -File | Where-Object { $_.Extension -match '\.(cab|msu)$' }
+    
+    if ($files.Count -gt 0) {
+        Write-Host "Found $($files.Count) .cab or .msu files in Updates\NDP481Base. Continue processing..."
+        Write-Host "- NDP481Base"
+        DISM /Image:mount /Add-Package /PackagePath:files\Updates\NDP481Base
+    }
+}
+
+    if (Test-Path -Path "files\Updates\OOBE" -PathType Container) {
+    $files = Get-ChildItem -Path "files\Updates\OOBE" -File | Where-Object { $_.Extension -match '\.(cab|msu)$' }
+    
+    if ($files.Count -gt 0) {
+        Write-Host "Found $($files.Count) .cab or .msu files in Updates\OOBE. Continue processing..."
+        Write-Host "- OOBE"
+        DISM /Image:mount /Add-Package /PackagePath:files\Updates\OOBE
+    }
+}
+
+if (Test-Path -Path "files\Updates\EP" -PathType Container) {
+    $files = Get-ChildItem -Path "files\Updates\EP" -File | Where-Object { $_.Extension -match '\.(cab|msu)$' }
+    
+    if ($files.Count -gt 0) {
+        Write-Host "Found $($files.Count) .cab or .msu files in Updates\EP. Continue processing..."
+        Write-Host "- EP"
+        DISM /Image:mount /Add-Package /PackagePath:files\Updates\EP
+    }
+}
+
 Write-Host ""
-Write-Host "Unmounting install.wim Image"
-dism /unmount-wim /mountdir:mount /commit | Out-Null
-Write-Host "- install.wim"
+Write-Host "Resetting base"
+Dism /Image:mount /Cleanup-Image /StartComponentCleanup /ResetBase
 Write-Host ""
+
+Write-Host ""
+Write-Host "Mounting WinRE"
+DISM /Mount-Image /ImageFile:"mount\Windows\System32\Recovery\winre.wim" /index:1 /MountDir:"mountRE"
+Write-Host ""
+
+Write-Host ""
+Write-Host "Adding updates to WinRE"
+Write-Host ""
+
+if (Test-Path -Path "files\Updates\SSU" -PathType Container) {
+    $files = Get-ChildItem -Path "files\Updates\SSU" -File | Where-Object { $_.Extension -match '\.(cab|msu)$' }
+    
+    if ($files.Count -gt 0) {
+        Write-Host "Found $($files.Count) .cab or .msu files in Updates\SSU. Continue processing..."
+        Write-Host "- SSU"
+        DISM /Image:mountRE /Add-Package /PackagePath:files\Updates\SSU
+    }
+}
+
+    if (Test-Path -Path "files\Updates\LCU" -PathType Container) {
+    $files = Get-ChildItem -Path "files\Updates\LCU" -File | Where-Object { $_.Extension -match '\.(cab|msu)$' }
+    
+    if ($files.Count -gt 0) {
+        Write-Host "Found $($files.Count) .cab or .msu files in Updates\LCU. Continue processing..."
+        Write-Host "- LCU"
+        DISM /Image:mountRE /Add-Package /PackagePath:files\Updates\LCU
+    }
+}
+
+Write-Host ""
+Write-Host "Resetting base"
+Dism /Image:mountRE /Cleanup-Image /StartComponentCleanup /ResetBase
+Write-Host ""
+
+Write-Host ""
+Write-Host "Unmounting WinRE"
+DISM /Unmount-Image /MountDir:mountRE /commit
+Write-Host ""
+
+    Write-Host ""
+    Write-Host "Unmounting install.wim Image"
+    dism /unmount-wim /mountdir:mount /commit
+    Write-Host "- install.wim"
+    Write-Host ""
+
+    if (Test-Path -Path "iso\sources\boot.wim" -PathType Leaf) {
+    Set-ItemProperty -Path "iso\sources\boot.wim" -Name IsReadOnly -Value $false
+    Write-Host "The 'iso\sources\boot.wim' file exists. Continue processing..."
+
+    Write-Host ""
+    Write-Host "Mounting boot.wim index:1"
+    DISM /Mount-Image /ImageFile:"iso\sources\boot.wim" /index:1 /MountDir:"mount"
+    Write-Host ""
+
+    Write-Host ""
+    Write-Host "Adding updates to boot.wim index:1"
+    Write-Host ""
+
+    if (Test-Path -Path "files\Updates\SSU" -PathType Container) {
+    $files = Get-ChildItem -Path "files\Updates\SSU" -File | Where-Object { $_.Extension -match '\.(cab|msu)$' }
+    
+    if ($files.Count -gt 0) {
+        Write-Host "Found $($files.Count) .cab or .msu files in Updates\LCU. Continue processing..."
+        Write-Host "- SSU"
+        DISM /Image:mount /Add-Package /PackagePath:files\Updates\SSU
+    }
+}
+
+if (Test-Path -Path "files\Updates\LCU" -PathType Container) {
+    $files = Get-ChildItem -Path "files\Updates\LCU" -File | Where-Object { $_.Extension -match '\.(cab|msu)$' }
+    
+    if ($files.Count -gt 0) {
+        Write-Host "Found $($files.Count) .cab or .msu files in Updates\LCU. Continue processing..."
+        Write-Host "- LCU"
+        DISM /Image:mount /Add-Package /PackagePath:files\Updates\LCU
+    }
+}
+
+if (Test-Path -Path "files\Updates\EP" -PathType Container) {
+    $files = Get-ChildItem -Path "files\Updates\EP" -File | Where-Object { $_.Extension -match '\.(cab|msu)$' }
+    
+    if ($files.Count -gt 0) {
+        Write-Host "Found $($files.Count) .cab or .msu files in Updates\EP. Continue processing..."
+        Write-Host "- EP"
+        DISM /Image:mount /Add-Package /PackagePath:files\Updates\EP
+    }
+}
+
+Write-Host ""
+Write-Host "Resetting base"
+Dism /Image:mount /Cleanup-Image /StartComponentCleanup /ResetBase
+Write-Host ""
+
+Write-Host ""
+Write-Host "Unmounting boot.wim index:1"
+DISM /Unmount-Image /MountDir:mount /commit
+Write-Host ""
+
+Write-Host ""
+    Write-Host "Mounting boot.wim index:2"
+    DISM /Mount-Image /ImageFile:"iso\sources\boot.wim" /index:2 /MountDir:"mount"
+    Write-Host ""
+
+    Write-Host ""
+    Write-Host "Adding updates to boot.wim index:2"
+    Write-Host ""
+
+    if (Test-Path -Path "files\Updates\SSU" -PathType Container) {
+    $files = Get-ChildItem -Path "files\Updates\SSU" -File | Where-Object { $_.Extension -match '\.(cab|msu)$' }
+    
+    if ($files.Count -gt 0) {
+        Write-Host "Found $($files.Count) .cab or .msu files in Updates\LCU. Continue processing..."
+        Write-Host "- SSU"
+        DISM /Image:mount /Add-Package /PackagePath:files\Updates\SSU
+    }
+}
+
+if (Test-Path -Path "files\Updates\LCU" -PathType Container) {
+    $files = Get-ChildItem -Path "files\Updates\LCU" -File | Where-Object { $_.Extension -match '\.(cab|msu)$' }
+    
+    if ($files.Count -gt 0) {
+        Write-Host "Found $($files.Count) .cab or .msu files in Updates\LCU. Continue processing..."
+        Write-Host "- LCU"
+        DISM /Image:mount /Add-Package /PackagePath:files\Updates\LCU
+    }
+}
+
+if (Test-Path -Path "files\Updates\EP" -PathType Container) {
+    $files = Get-ChildItem -Path "files\Updates\EP" -File | Where-Object { $_.Extension -match '\.(cab|msu)$' }
+    
+    if ($files.Count -gt 0) {
+        Write-Host "Found $($files.Count) .cab or .msu files in Updates\EP. Continue processing..."
+        Write-Host "- EP"
+        DISM /Image:mount /Add-Package /PackagePath:files\Updates\EP
+    }
+}
+
+Write-Host ""
+Write-Host "Resetting base"
+Dism /Image:mount /Cleanup-Image /StartComponentCleanup /ResetBase
+Write-Host ""
+
+Write-Host ""
+Write-Host "Unmounting boot.wim index:2"
+DISM /Unmount-Image /MountDir:mount /commit
+Write-Host ""
+
+    }
+
+    Write-Host ""
+}
+
+if ($AddUpdates -eq "False") {
+    Write-Host ""
+    Write-Host "Unmounting install.wim Image"
+    dism /unmount-wim /mountdir:mount /commit | Out-Null
+    Write-Host "- install.wim"
+    Write-Host ""
+}
 
 Write-Host ""
 Write-Host "Optimizing install.wim Image"
@@ -264,7 +498,7 @@ if ($iso){
     if (Test-Path "iso\sources\install.wim") { Move-Item -Path "iso\sources\install.wim" -Destination "install.wim" -Force | Out-Null }
 }
 
-@("mount", "lp", "sxs", "iso") | ForEach-Object { if (Test-Path $_ -ErrorAction SilentlyContinue) { Remove-Item $_ -Recurse -Force -ErrorAction SilentlyContinue | Out-Null } }
+@("mount", "mountRE", "lp", "sxs", "iso") | ForEach-Object { if (Test-Path $_ -ErrorAction SilentlyContinue) { Remove-Item $_ -Recurse -Force -ErrorAction SilentlyContinue | Out-Null } }
 if ($iso){
     Remove-Item -Path $iso.FullName -Recurse -Force -ErrorAction SilentlyContinue -Confirm:$false | Out-Null
 }
