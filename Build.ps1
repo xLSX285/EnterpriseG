@@ -1,5 +1,5 @@
 if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { Start-Process powershell.exe -ArgumentList " -NoProfile -ExecutionPolicy Bypass -File $($MyInvocation.MyCommand.Path)" -Verb RunAs; exit }
-$ScriptVersion = "v2.1.4"
+$ScriptVersion = "v2.1.5"
 [System.Console]::Title = "Enterprise G Reconstruction $ScriptVersion"
 $startTime = Get-Date
 Set-Location -Path $PSScriptRoot
@@ -73,8 +73,8 @@ Write-Host ""
 
 Write-Host ""
 Write-Host "Extracting language pack & edition files"
-if ($editionesd = (Get-ChildItem -Filter "Microsoft-Windows-EditionSpecific*.esd").Name) { Write-Host "- $editionesd"; .\files\7z.exe x $editionesd -osxs | Out-Null }
-if ($lpesd = (Get-ChildItem -Filter "Microsoft-Windows-Client-LanguagePack*.esd")) { Write-Host "- $($lpesd.Name)"; $lang = [System.IO.Path]::GetFileNameWithoutExtension($lpesd.Name).Substring($lpesd.Name.Length - 9, 5); .\files\7z.exe x $lpesd.FullName -olp | Out-Null }
+if ($editionesd = (Get-ChildItem -Filter "Microsoft-Windows-EditionSpecific*.esd").Name) { Write-Host "- $editionesd"; .\files\wimlib-imagex extract .\$editionesd 1 --dest-dir=sxs | Out-Null }
+if ($lpesd = (Get-ChildItem -Filter "Microsoft-Windows-Client-LanguagePack*.esd")) { Write-Host "- $($lpesd.Name)"; $lang = [System.IO.Path]::GetFileNameWithoutExtension($lpesd.Name).Substring($lpesd.Name.Length - 9, 5); .\files\wimlib-imagex extract $lpesd.FullName 1 --dest-dir=lp | Out-Null }
 Write-Host ""
 
 Write-Host ""
@@ -140,6 +140,9 @@ reg add "HKLM\zSOFTWARE\Policies\Microsoft\MRT" /v "DontReportInfectionInformati
 reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates" /v "ForceUpdateFromMU" /t REG_DWORD /d "0" /f | Out-Null
 reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates" /v "UpdateOnStartUp" /t REG_DWORD /d "0" /f | Out-Null
 Write-Host "- Disable Defender updates"
+# Hide settings pages
+reg add "HKLM\zSOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "SettingsPageVisibility" /t REG_SZ /d "hide:activation;recovery;windowsinsider-optin;windowsinsider" /f | Out-Null
+Write-Host "- Disable useless pages in settings"
 Write-Host ""
 
 Write-Host ""
@@ -273,6 +276,7 @@ $endTime = Get-Date
 $elapsedTime = $endTime - $startTime
 $elapsedMinutes = [math]::Floor($elapsedTime.TotalMinutes)
 $elapsedSeconds = $elapsedTime.Seconds
+
 Write-Host ""
 [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null; [Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] | Out-Null; $toastXml = [Windows.Data.Xml.Dom.XmlDocument]::new(); $toastTemplate = "<toast><visual><binding template='ToastText02'><text id='1'>Reconstruction successful</text><text id='2'>Completed in $($elapsedMinutes) minutes and $($elapsedSeconds) seconds.</text></binding></visual></toast>"; $toastXml.LoadXml($toastTemplate); $toast = [Windows.UI.Notifications.ToastNotification]::new($toastXml); [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("Enterprise G Reconstruction $ScriptVersion").Show($toast)
 Write-Host "Reconstruction completed in $($elapsedMinutes) minutes and $($elapsedSeconds) seconds."
