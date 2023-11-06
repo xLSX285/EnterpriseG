@@ -13,7 +13,7 @@
 </div>
 
 `Files required:`
-- install.wim or ISO (No updates, must contain Pro, supports multi-edition)
+- install.wim or ISO (EN-US, no updates, must contain Pro, supports multi-edition)
 - Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD
 - Microsoft-Windows-Client-LanguagePack-Package... .esd
 
@@ -21,7 +21,8 @@
 
 `How to get started:`
 1. Place all 3 files in the root directory of the script
-2. Run **Build.ps1** and wait for the reconstruction to complete
+2. Adjust the config.json to your likings
+3. Run **Build.ps1** and wait for the reconstruction to complete
 
 > Make sure your machine can execute PS scripts. **Set-ExecutionPolicy RemoteSigned**
 >
