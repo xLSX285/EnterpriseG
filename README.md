@@ -13,7 +13,7 @@
 </div>
 
 `Files required:`
-- install.wim or ISO (EN-US, no updates, must contain Pro, supports multi-edition)
+- install.wim or ISO (EN-US or ZH-CN, no updates, must contain Pro, supports multi-edition)
 - Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD
 - Microsoft-Windows-Client-LanguagePack-Package... .esd
 
