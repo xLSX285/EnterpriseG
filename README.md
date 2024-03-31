@@ -1,4 +1,6 @@
 ![LSX presents](https://github.com/xLSX285/EnterpriseG/assets/129116755/4957cf9b-42fe-4e70-9a33-d3450cbc9a52)
+
+## Due to current lack in interest, EnterpriseG wont be updated for a while. (24H2 26090 EnterpriseG currently needs to be fixed)
 <div align="center">
 
 ## [Download Latest Version](https://github.com/xLSX285/EnterpriseG/archive/refs/heads/main.zip)
