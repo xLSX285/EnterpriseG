@@ -14,18 +14,16 @@
 </div>
 
 `Files required:`
-- install.wim (EN-US or ZH-CN, no updates, must contain Pro, supports multi-edition)
-- Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD
-- Microsoft-Windows-Client-LanguagePack-Package... .esd
+- install.wim (EN-US, no updates, must contain Pro, can be multi-edition. You can build one using UUP Dump for example.)
 
-> .esd files are obtainable through [**UUP Dump**](https://uupdump.net/) or the [**releases**](https://github.com/xLSX285/EnterpriseG/releases) page.
+> The script automatically downloads all required files for Build 17763, 19041, 22000, 22621 and 26100. You just need to provide an install.wim image. If you work with other builds, you must additionally obtain Microsoft-Windows-Client-LanguagePack-Package...esd and Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD yourself. .esd files are obtainable through [**UUP Dump**](https://uupdump.net/).
 
 `How to get started:`
-1. Place all 3 files in the root directory of the script
-2. Adjust the config.json to your likings
-3. Run **Build.ps1** and wait for the reconstruction to complete
+1. Place install.wim in the root directory of the script
+2. Adjust the config.json if necessary
+3. Execute **Build.ps1**
 
-> Make sure your machine can execute PS scripts. **Set-ExecutionPolicy RemoteSigned**
+> Make sure your machine can execute PowerShell scripts. **Set-ExecutionPolicy RemoteSigned**
 >
 <div align="center">
   
