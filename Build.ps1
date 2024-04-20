@@ -3,22 +3,50 @@ $ScriptVersion = "v2.2.0"
 [System.Console]::Title = "Enterprise G Reconstruction $ScriptVersion"
 Set-Location -Path $PSScriptRoot
 
-$requiredFiles = @("Microsoft-Windows-EditionSpecific*", "Microsoft-Windows-Client-LanguagePack*", "install.wim")
-$missingFiles = $requiredFiles | Where-Object { -not (Test-Path $_) }
+$requiredWIM = @("install.wim")
+$missingWIM = $requiredWIM | Where-Object { -not (Test-Path $_) }
+if ($missingWIM) { [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null; [Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] | Out-Null; $toastXml = [Windows.Data.Xml.Dom.XmlDocument]::new(); $toastTemplate = "<toast><visual><binding template='ToastText02'><text id='1'>Reconstruction failed</text><text id='2'>Install.wim could not be found.</text></binding></visual></toast>"; $toastXml.LoadXml($toastTemplate); $toast = [Windows.UI.Notifications.ToastNotification]::new($toastXml); [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("Enterprise G Reconstruction $ScriptVersion").Show($toast); Write-Host "Install.wim could not be found."; pause; exit }
 
+$imageInfo = Get-WindowsImage -ImagePath "install.wim" -index:1
+$Build = $imageInfo.Version
+$detectedBuild = [int]($Build -replace '1[0-9]\.\d+\.', '')
+
+function Download-Files {
+    param (
+        [string]$buildUri,
+        [string]$editionUri
+    )
+    Write-Host "Downloading Language Pack"
+    Invoke-WebRequest -Uri $buildUri -OutFile ".\Microsoft-Windows-Client-LanguagePack-Package_en-us-amd64-en-us.esd"
+    Write-Host "Downloading EnterpriseG Edition Files"
+    Invoke-WebRequest -Uri $editionUri -OutFile ".\Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD"
+    Write-Host ""
+}
+
+switch ($detectedBuild) {
+    26100 { Download-Files "https://github.com/xLSX285/EnterpriseG/releases/download/24H2_Windows11/Microsoft-Windows-Client-LanguagePack-Package-amd64-en-us.esd" "https://github.com/xLSX285/EnterpriseG/releases/download/24H2_Windows11/Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD" }
+    22621 { Download-Files "https://github.com/xLSX285/EnterpriseG/releases/download/22H2-23H2_Win11/Microsoft-Windows-Client-LanguagePack-Package_en-us-amd64-en-us.esd" "https://github.com/xLSX285/EnterpriseG/releases/download/22H2-23H2_Win11/Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD" }
+    22000 { Download-Files "https://github.com/xLSX285/EnterpriseG/releases/download/21H2_Win11/Microsoft-Windows-Client-LanguagePack-Package_en-us-amd64-en-us.esd" "https://github.com/xLSX285/EnterpriseG/releases/download/21H2_Win11/Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD" }
+    19041 { Download-Files "https://github.com/xLSX285/EnterpriseG/releases/download/2004-22H2_Win10/Microsoft-Windows-Client-LanguagePack-Package_en-us-amd64-en-us.esd" "https://github.com/xLSX285/EnterpriseG/releases/download/2004-22H2_Win10/Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD" }
+    17763 { Download-Files "https://github.com/xLSX285/EnterpriseG/releases/download/1809_Win10/Microsoft-Windows-Client-LanguagePack-Package_en-US-AMD64-en-us.esd" "https://github.com/xLSX285/EnterpriseG/releases/download/1809_Win10/Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD" }
+    default {
+        Write-Host "Please insert language pack and edition specific ESD files to continue - Ignore if you already did."
+        pause
+    }
+}
+
+$requiredFiles = @("Microsoft-Windows-EditionSpecific*", "Microsoft-Windows-Client-LanguagePack*")
+$missingFiles = $requiredFiles | Where-Object { -not (Test-Path $_) }
 if ($missingFiles) { [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null; [Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] | Out-Null; $toastXml = [Windows.Data.Xml.Dom.XmlDocument]::new(); $toastTemplate = "<toast><visual><binding template='ToastText02'><text id='1'>Reconstruction failed</text><text id='2'>Required files are missing: $($missingFiles -join ', ')</text></binding></visual></toast>"; $toastXml.LoadXml($toastTemplate); $toast = [Windows.UI.Notifications.ToastNotification]::new($toastXml); [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("Enterprise G Reconstruction $ScriptVersion").Show($toast); Write-Host "Required files are missing: $($missingFiles -join ', ')"; pause; exit }
 
 @("mount", "lp", "sxs", "iso\sources") | ForEach-Object { if (!(Test-Path $_ -PathType Container)) { New-Item -Path $_ -ItemType Directory -Force | Out-Null } }
 
 Move-Item -Path "install.wim" -Destination "iso\sources\install.wim" | Out-Null
 
-$imageInfo = Get-WindowsImage -ImagePath "iso\sources\install.wim" -index:1
 $Windows = ($imageInfo.ImageName -split ' ')[1]
 $ProIndex = Get-WindowsImage -ImagePath "iso\sources\install.wim" | Where-Object { $_.ImageName -eq "Windows $Windows Pro" } | Select-Object -ExpandProperty ImageIndex; if (-not $ProIndex) { [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null; [Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] | Out-Null; $toastXml = [Windows.Data.Xml.Dom.XmlDocument]::new(); $toastTemplate = "<toast><visual><binding template='ToastText02'><text id='1'>Reconstruction failed</text><text id='2'>Install.wim does not appear to contain Pro edition.</text></binding></visual></toast>"; $toastXml.LoadXml($toastTemplate); $toast = [Windows.UI.Notifications.ToastNotification]::new($toastXml); [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("Enterprise G Reconstruction $ScriptVersion").Show($toast); Write-Host "Install.wim does not appear to contain Pro edition."; @("mount", "lp", "sxs", "iso") | ForEach-Object { Remove-Item $_ -Recurse -Force -ErrorAction SilentlyContinue }; pause; exit }
-$Build = $imageInfo.Version
 if ($imageInfo.SPBuild -notmatch "^(1|1000|1001|5001)$") { [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null; [Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] | Out-Null; $toastXml = [Windows.Data.Xml.Dom.XmlDocument]::new(); $toastTemplate = "<toast><visual><binding template='ToastText02'><text id='1'>Reconstruction failed</text><text id='2'>Image contains updates. Updates should be added after reconstruction.</text></binding></visual></toast>"; $toastXml.LoadXml($toastTemplate); $toast = [Windows.UI.Notifications.ToastNotification]::new($toastXml); [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("Enterprise G Reconstruction $ScriptVersion").Show($toast); Write-Host "Image contains updates. Updates should be added after reconstruction." ; @("mount", "lp", "sxs", "iso") | ForEach-Object { Remove-Item $_ -Recurse -Force -ErrorAction SilentlyContinue }; pause ; exit }
 
-$detectedBuild = [int]($Build -replace '1[0-9]\.\d+\.', '')
 if ($detectedBuild -lt 19041) {
     $Type = "Legacy"
 } elseif ($detectedBuild -lt 25398) {
