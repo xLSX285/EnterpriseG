@@ -1,6 +1,5 @@
 ![LSX presents](https://github.com/xLSX285/EnterpriseG/assets/129116755/4957cf9b-42fe-4e70-9a33-d3450cbc9a52)
 
-## 24H2 26100 EnterpriseG currently needs to be fixed
 <div align="center">
 
 ## [Download Latest Version](https://github.com/xLSX285/EnterpriseG/archive/refs/heads/main.zip)
@@ -15,7 +14,7 @@
 </div>
 
 `Files required:`
-- install.wim or ISO (EN-US or ZH-CN, no updates, must contain Pro, supports multi-edition)
+- install.wim (EN-US or ZH-CN, no updates, must contain Pro, supports multi-edition)
 - Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD
 - Microsoft-Windows-Client-LanguagePack-Package... .esd
 
@@ -39,32 +38,10 @@
 - `True`: Windows will be activated using KMS38 method `Default`
 - `False`: Windows wont be activated
 
-## WimToESD 
-
-- `True`: install.wim image will be compressed to install.esd
-- `False`: install.wim image wont be compressed `Default`
-
 ## RemoveEdge
 
 - `True`: Microsoft Edge will be removed `Official`
 - `False`: Microsoft Edge remains installed
-
-## RemoveApps
-
-- `True`: All specified inbox apps in `ProvisionedPackagesToRemove` will be removed from the image
-- `False`: Inbox apps wont be removed `Default`
-
-## RemovePackages
-
-- `True`: All specified packages in `WindowsPackagesToRemove` will be removed from the image
-- `False`: Packages wont be removed `Default`
-- `You may experience couple error messages when it's removing packages, that's completely fine.`
-
-
-## DisableFeatures
-
-- `True`: All specified features in `WindowsFeaturesToDisable` will be disabled from the image
-- `False`: Features wont be disabled `Default`
 
 <div align="center">
   
@@ -72,3 +49,4 @@
 </div>
 
 - Inplace upgrade fails on some builds of Windows (e.g 19041 -> 22000/22621.) fix needed.
+- 24H2 (26100) reconstruction currently not working.
