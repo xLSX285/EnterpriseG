@@ -16,7 +16,7 @@
 `Files required:`
 - install.wim (EN-US, no updates, must contain Pro, can be multi-edition. You can build one using UUP Dump for example.)
 
-> The script automatically downloads all required files for Build 17763, 19041, 22000, 22621 and 26100. You just need to provide an install.wim image. If you work with other builds, you must additionally obtain Microsoft-Windows-Client-LanguagePack-Package...esd and Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD yourself. .esd files are obtainable through [**UUP Dump**](https://uupdump.net/).
+> The script automatically downloads all required files for Build 17763, 19041, 22000, 22621 and 26100. You just need to provide an install.wim image. If you work with other builds, you must additionally obtain Microsoft-Windows-Client-LanguagePack-Package-amd64-en-us.esd and Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD yourself. .esd files are obtainable through [**UUP Dump**](https://uupdump.net/).
 
 `How to get started:`
 1. Place install.wim in the root directory of the script
