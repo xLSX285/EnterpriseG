@@ -1,5 +1,5 @@
 if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { Start-Process powershell.exe -ArgumentList " -NoProfile -ExecutionPolicy Bypass -File $($MyInvocation.MyCommand.Path)" -Verb RunAs; exit }
-$ScriptVersion = "v2.3"
+$ScriptVersion = "v2.31"
 [System.Console]::Title = "Enterprise G Reconstruction $ScriptVersion"
 Set-Location -Path $PSScriptRoot
 
@@ -104,7 +104,24 @@ Write-Host
 Write-Host "$([char]0x1b)[48;2;20;14;136m=== Setting SKU to Enterprise G"
 dism /image:mount /apply-unattend:mount\Windows\EnterpriseG.xml | Out-Null
 dism /image:mount /set-productkey:YYVX9-NTFWV-6MDM3-9PT4T-4M68B | Out-Null
-dism /image:mount /get-currentedition | Out-Null
+
+$currentEdition = (dism /image:mount /get-currentedition | Out-String)
+
+if ($currentEdition -match "Current Edition : EnterpriseG") {
+    Write-Host
+    Write-Host "$([char]0x1b)[48;2;20;14;136m=== SKU successfully updated to EnterpriseG"
+} else {
+    Write-Host
+    Write-Host "$([char]0x1b)[48;2;255;0;0m=== Reconstruction failed. Undoing changes..."
+    Write-Host
+    Write-Host "$([char]0x1b)[48;2;20;14;136m=== Unmounting Install.wim"
+    dism /unmount-wim /mountdir:mount /discard | Out-Null
+    Write-Host
+    @("mount", "lp", "sxs") | ForEach-Object { if (Test-Path $_ -ErrorAction SilentlyContinue) { Remove-Item $_ -Recurse -Force -ErrorAction SilentlyContinue | Out-Null } }
+    Get-ChildItem -Filter "Microsoft-Windows-EditionSpecific*.esd" | Remove-Item -Force; Get-ChildItem -Filter "Microsoft-Windows-Client-LanguagePack*.esd" | Remove-Item -Force | Out-Null
+    pause | Out-Null
+    exit
+}
 
 Write-Host
 Write-Host "$([char]0x1b)[48;2;20;14;136m=== Loading Registry Keys and Applying Keys"
@@ -189,6 +206,7 @@ Write-Host "$([char]0x1b)[48;2;20;14;136m=== Setting WIM Infos and Flags"
 Write-Host
 
 @("mount", "lp", "sxs") | ForEach-Object { if (Test-Path $_ -ErrorAction SilentlyContinue) { Remove-Item $_ -Recurse -Force -ErrorAction SilentlyContinue | Out-Null } }
+Get-ChildItem -Filter "Microsoft-Windows-EditionSpecific*.esd" | Remove-Item -Force; Get-ChildItem -Filter "Microsoft-Windows-Client-LanguagePack*.esd" | Remove-Item -Force | Out-Null
 
 $endTime = Get-Date
 $elapsedTime = $endTime - $startTime
