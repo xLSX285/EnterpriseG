@@ -23,7 +23,7 @@
 2. Adjust the config.json if necessary
 3. Execute **Build.ps1**
 
-> Make sure your machine can execute PowerShell scripts. **Set-ExecutionPolicy RemoteSigned**
+> Make sure your machine can execute PowerShell scripts. **Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass**
 >
 <div align="center">
   
