@@ -13,17 +13,19 @@
 # How to reconstruct Enterprise G
 </div>
 
-`Files required:`
-- install.wim (EN-US, no updates, must contain Pro, can be multi-edition. You can build one using UUP Dump for example.)
+[![EnterpriseG Reconstruction Guide](https://img.youtube.com/vi/)](https://www.youtube.com/watch?v=K69L4DROtlc "EnterpriseG Reconstruction Guide")
 
-> The script automatically downloads all required files for Build 17763, 19041, 22000, 22621 and 26100. You just need to provide an install.wim image. If you work with other builds, you must additionally obtain Microsoft-Windows-Client-LanguagePack-Package-amd64-en-us.esd and Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD yourself. .esd files are obtainable through [**UUP Dump**](https://uupdump.net/).
+`Files required:`
+- Install.wim image in en-US language that contains no updates (.1) and image must contain Windows Pro Edition
+
+> The script downloads all required files for you for Build 17763, 19041, 22000, 22621 and 26100. You need to provide an install.wim image, that's it. If you work with other builds, you must obtain Microsoft-Windows-Client-LanguagePack-Package-amd64-en-us.esd and Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD yourself. .esd files are obtainable on [**UUP Dump**](https://uupdump.net/).
 
 `How to get started:`
-1. Place install.wim in the root directory of the script
+1. Place install.wim in the directory of the script
 2. Adjust the config.json if necessary
-3. Execute **Build.ps1**
+3. Run **Build.ps1** in PowerShell
 
-> Make sure your machine can execute PowerShell scripts. **Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass**
+> Make sure you can execute PowerShell scripts. **Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass**
 >
 <div align="center">
   
@@ -33,12 +35,12 @@
 
 ## ActivateWindows
 
-- `True`: Windows will be activated using KMS38 method `Default`
+- `True`: Windows will be activated via KMS38 method `Default`
 - `False`: Windows wont be activated
 
 ## RemoveEdge
 
-- `True`: Microsoft Edge will be removed `Official`
+- `True`: Microsoft Edge will be removed `Default`
 - `False`: Microsoft Edge remains installed
 
 <div align="center">
