@@ -8,5 +8,9 @@
         <package action="remove">
             <assemblyIdentity name="Microsoft-Windows-ProfessionalEdition" version="10.0.22621.1" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" />
         </package>
+        <package action="install">
+            <assemblyIdentity name="Microsoft-Windows-Client-LanguagePack-Package" version="10.0.22621.1" processorArchitecture="amd64" language="en-US" buildType="release" publicKeyToken="31bf3856ad364e35" />
+            <source location="Microsoft-Windows-Client-LanguagePack-Package-amd64-en-us.esd" />
+        </package>
     </servicing>
 </unattend>
