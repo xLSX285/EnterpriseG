@@ -49,4 +49,4 @@
 </div>
 
 - Inplace upgrade fails on some builds of Windows (e.g 19041 -> 22000/22621.) fix needed.
-- 24H2 (26100) reconstruction currently not working.
+- 24H2 (26100) reconstruction has been fixed. Currently working on fixing license at setup
