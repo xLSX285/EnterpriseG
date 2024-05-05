@@ -12,6 +12,16 @@
         <assemblyIdentity name="Microsoft-Windows-EditionSpecific-EnterpriseG-Package" version="10.0.22621.1" processorArchitecture="amd64" language="neutral" buildType="release" publicKeyToken="31bf3856ad364e35" />
       </package>
     </update>
+    <update name="Microsoft-Windows-RegulatedPackages-Package">
+      <package contained="false" integrate="hidden">
+        <assemblyIdentity name="Microsoft-Windows-RegulatedPackages-Package" version="10.0.22621.1" processorArchitecture="amd64" language="neutral" buildType="release" publicKeyToken="31bf3856ad364e35" />
+      </package>
+    </update>
+    <update name="Microsoft-Windows-RegulatedPackages-WOW64-Package">
+      <package contained="false" integrate="hidden">
+        <assemblyIdentity name="Microsoft-Windows-RegulatedPackages-WOW64-Package" version="10.0.22621.1" processorArchitecture="amd64" language="neutral" buildType="release" publicKeyToken="31bf3856ad364e35" />
+      </package>
+    </update>
     <update name="Microsoft-Windows-Client-Desktop-Required-Package">
       <package contained="false" integrate="hidden">
         <assemblyIdentity name="Microsoft-Windows-Client-Desktop-Required-Package" version="10.0.22621.1" processorArchitecture="amd64" language="neutral" buildType="release" publicKeyToken="31bf3856ad364e35" />
@@ -22,14 +32,14 @@
         <assemblyIdentity name="Microsoft-Windows-Client-Desktop-Required-WOW64-Package" version="10.0.22621.1" processorArchitecture="amd64" language="neutral" buildType="release" publicKeyToken="31bf3856ad364e35" />
       </package>
     </update>
-    <update name="Runlevel-Win4-Package">
+    <update name="Microsoft-Win4-Feature">
       <package contained="false" integrate="hidden">
-        <assemblyIdentity name="Runlevel-Win4-Package" version="10.0.22621.1" processorArchitecture="amd64" language="neutral" buildType="release" publicKeyToken="31bf3856ad364e35" />
+        <assemblyIdentity name="Microsoft-Win4-Feature" version="10.0.22621.1" processorArchitecture="amd64" language="neutral" buildType="release" publicKeyToken="31bf3856ad364e35" />
       </package>
     </update>
-    <update name="Runlevel-Win4-WOW64-Package">
+    <update name="Microsoft-Win4-WOW64-Feature">
       <package contained="false" integrate="hidden">
-        <assemblyIdentity name="Runlevel-Win4-WOW64-Package" version="10.0.22621.1" processorArchitecture="amd64" language="neutral" buildType="release" publicKeyToken="31bf3856ad364e35" />
+        <assemblyIdentity name="Microsoft-Win4-WOW64-Feature" version="10.0.22621.1" processorArchitecture="amd64" language="neutral" buildType="release" publicKeyToken="31bf3856ad364e35" />
       </package>
     </update>
     <update name="Microsoft-Windows-Client-Features-Package">
@@ -52,14 +62,14 @@
         <assemblyIdentity name="Microsoft-Windows-EditionPack-Professional-WOW64-Package" version="10.0.22621.1" processorArchitecture="amd64" language="neutral" buildType="release" publicKeyToken="31bf3856ad364e35" />
       </package>
     </update>
-    <update name="Microsoft-Windows-RegulatedPackages-Package">
+    <update name="Microsoft-Windows-Common-RegulatedPackages-Package">
       <package contained="false" integrate="hidden">
-        <assemblyIdentity name="Microsoft-Windows-RegulatedPackages-Package" version="10.0.22621.1" processorArchitecture="amd64" language="neutral" buildType="release" publicKeyToken="31bf3856ad364e35" />
+        <assemblyIdentity name="Microsoft-Windows-Common-RegulatedPackages-Package" version="10.0.22621.1" processorArchitecture="amd64" language="neutral" buildType="release" publicKeyToken="31bf3856ad364e35" />
       </package>
     </update>
-    <update name="Microsoft-Windows-RegulatedPackages-WOW64-Package">
+    <update name="Microsoft-Windows-Common-RegulatedPackages-WOW64-Package">
       <package contained="false" integrate="hidden">
-        <assemblyIdentity name="Microsoft-Windows-RegulatedPackages-WOW64-Package" version="10.0.22621.1" processorArchitecture="amd64" language="neutral" buildType="release" publicKeyToken="31bf3856ad364e35" />
+        <assemblyIdentity name="Microsoft-Windows-Common-RegulatedPackages-WOW64-Package" version="10.0.22621.1" processorArchitecture="amd64" language="neutral" buildType="release" publicKeyToken="31bf3856ad364e35" />
       </package>
     </update>
     <update name="Microsoft-Windows-Required-ShellExperiences-Desktop-Package">
