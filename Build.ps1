@@ -99,8 +99,11 @@ Copy-Item -Path mount\Windows\servicing\Editions\EnterpriseGEdition.xml -Destina
 Write-Host
 Write-Host "$([char]0x1b)[48;2;20;14;136m=== Setting SKU to Enterprise G"
 dism /image:mount /apply-unattend:mount\Windows\EnterpriseG.xml | Out-Null
-Dism /Image:mount /Set-Edition:EnterpriseG /AcceptEula /ProductKey:YYVX9-NTFWV-6MDM3-9PT4T-4M68B | Out-Null
-
+if ($Type -eq "24H2") {
+    Dism /Image:mount /Set-Edition:EnterpriseG /AcceptEula /ProductKey:FV469-WGNG4-YQP66-2B2HY-KD8YX | Out-Null
+} else {
+    Dism /Image:mount /Set-Edition:EnterpriseG /AcceptEula /ProductKey:YYVX9-NTFWV-6MDM3-9PT4T-4M68B | Out-Null
+}
 $currentEdition = (dism /image:mount /get-currentedition | Out-String)
 
 if ($currentEdition -match "Current Edition : EnterpriseG") {
@@ -134,8 +137,6 @@ reg add "HKLM\zSOFTWARE\Policies\Microsoft\MRT" /v "DontOfferThroughWUAU" /t REG
 reg add "HKLM\zSOFTWARE\Policies\Microsoft\MRT" /v "DontReportInfectionInformation" /t REG_DWORD /d "1" /f | Out-Null
 reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates" /v "ForceUpdateFromMU" /t REG_DWORD /d "0" /f | Out-Null
 reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates" /v "UpdateOnStartUp" /t REG_DWORD /d "0" /f | Out-Null
-# # Hide EULA on OOBE
-# reg add "HKLM\zSOFTWARE\Microsoft\Windows\CurrentVersion\OOBE" /v "HideEULAPage" /t REG_DWORD /d "1" /f | Out-Null
 reg unload HKLM\zSOFTWARE | Out-Null
 reg unload HKLM\zSYSTEM | Out-Null
 
