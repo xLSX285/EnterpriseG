@@ -1,5 +1,5 @@
 if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { Start-Process powershell.exe -ArgumentList " -NoProfile -ExecutionPolicy Bypass -File $($MyInvocation.MyCommand.Path)" -Verb RunAs; exit }
-$ScriptVersion = "v2.3.3"
+$ScriptVersion = "v2.4"
 [System.Console]::Title = "Enterprise G Reconstruction $ScriptVersion"
 Set-Location -Path $PSScriptRoot
 
@@ -106,7 +106,7 @@ if ($Type -eq "24H2") {
 }
 $currentEdition = (dism /image:mount /get-currentedition | Out-String)
 
-if ($currentEdition -match "Current Edition : EnterpriseG") {
+if ($currentEdition -match "EnterpriseG") {
     Write-Host
     Write-Host "$([char]0x1b)[48;2;20;14;136m=== SKU successfully updated to EnterpriseG"
 } else {
@@ -125,6 +125,7 @@ Write-Host
 Write-Host "$([char]0x1b)[48;2;20;14;136m=== Applying Registry Keys"
 reg load HKLM\zSOFTWARE mount\Windows\System32\config\SOFTWARE | Out-Null
 reg load HKLM\zSYSTEM mount\Windows\System32\config\SYSTEM | Out-Null
+reg load HKLM\zNTUSER mount\Users\Default\ntuser.dat | Out-Null
 # Microsoft Account support
 reg Add "HKLM\zSOFTWARE\Microsoft\PolicyManager\current\device\Accounts" /v "AllowMicrosoftAccountSignInAssistant" /t REG_DWORD /d "1" /f | Out-Null
 # Producer branding
@@ -137,8 +138,163 @@ reg add "HKLM\zSOFTWARE\Policies\Microsoft\MRT" /v "DontOfferThroughWUAU" /t REG
 reg add "HKLM\zSOFTWARE\Policies\Microsoft\MRT" /v "DontReportInfectionInformation" /t REG_DWORD /d "1" /f | Out-Null
 reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates" /v "ForceUpdateFromMU" /t REG_DWORD /d "0" /f | Out-Null
 reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows Defender\Signature Updates" /v "UpdateOnStartUp" /t REG_DWORD /d "0" /f | Out-Null
+# Hide settings pages
+reg add "HKLM\zSOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "SettingsPageVisibility" /t REG_SZ /d "hide:activation;gaming-gamebar;gaming-gamedvr;gaming-gamemode;quietmomentsgame;maps;privacy-feedback;privacy-activityhistory" /f | Out-Null
+# Turn off auto updates
+reg add "HKLM\zNTUSER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "OemPreInstalledAppsEnabled" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zNTUSER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "PreInstalledAppsEnabled" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zNTUSER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SilentInstalledAppsEnabled" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zNTUSER\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "ContentDeliveryAllowed" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Microsoft\PolicyManager\current\device\Start" /v "ConfigureStartPins" /t REG_SZ /d '{\"pinnedList\": [{}]}' /f | Out-Null
+reg add "HKLM\zNTUSER\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "FeatureManagementEnabled" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zNTUSER\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "PreInstalledAppsEverEnabled" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zNTUSER\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SoftLandingEnabled" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zNTUSER\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContentEnabled" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zNTUSER\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-310093Enabled" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zNTUSER\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-338388Enabled" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zNTUSER\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-338389Enabled" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zNTUSER\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-338393Enabled" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zNTUSER\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-353694Enabled" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zNTUSER\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-353696Enabled" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zNTUSER\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SystemPaneSuggestionsEnabled" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSoftware\Policies\Microsoft\PushToInstall" /v "DisablePushToInstall" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\Windows Chat" /v "ChatIcon" /t REG_DWORD /d "3" /f | Out-Null
+reg delete "HKLM\zNTUSER\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\Subscriptions" /f | Out-Null
+reg delete "HKLM\zNTUSER\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\SuggestedApps" /f | Out-Null
+reg delete "HKLM\zSOFTWARE\policies\microsoft\windows\windowsupdate" /v "allowoptionalcontent" /f | Out-Null
+reg delete "HKLM\zSOFTWARE\policies\microsoft\windows\windowsupdate" /v "branchreadinesslevel" /f | Out-Null
+reg add "HKLM\zSOFTWARE\policies\microsoft\windows\windowsupdate" /v "ExcludeWUDriversInQualityUpdate" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zSOFTWARE\policies\microsoft\windows\windowsupdate" /v "ManagePreviewBuildsPolicyValue" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zSOFTWARE\policies\microsoft\windows\windowsupdate" /v "SetAllowOptionalContent" /t REG_DWORD /d "0" /f | Out-Null
+reg delete "HKLM\zSOFTWARE\policies\microsoft\windows\windowsupdate\au" /v "allowmuupdateservice" /f | Out-Null
+reg delete "HKLM\zSOFTWARE\policies\microsoft\windows\windowsupdate\au" /v "auoptions" /f | Out-Null
+reg delete "HKLM\zSOFTWARE\policies\microsoft\windows\windowsupdate\au" /v "automaticmaintenanceenabled" /f | Out-Null
+reg delete "HKLM\zSOFTWARE\policies\microsoft\windows\windowsupdate\au" /v "scheduledinstallday" /f | Out-Null
+reg delete "HKLM\zSOFTWARE\policies\microsoft\windows\windowsupdate\au" /v "scheduledinstalleveryweek" /f | Out-Null
+reg delete "HKLM\zSOFTWARE\policies\microsoft\windows\windowsupdate\au" /v "scheduledinstallfirstweek" /f | Out-Null
+reg delete "HKLM\zSOFTWARE\policies\microsoft\windows\windowsupdate\au" /v "scheduledinstallfourthweek" /f | Out-Null
+reg delete "HKLM\zSOFTWARE\policies\microsoft\windows\windowsupdate\au" /v "scheduledinstallsecondweek" /f | Out-Null
+reg delete "HKLM\zSOFTWARE\policies\microsoft\windows\windowsupdate\au" /v "scheduledinstallthirdweek" /f | Out-Null
+reg delete "HKLM\zSOFTWARE\policies\microsoft\windows\windowsupdate\au" /v "scheduledinstalltime" /f | Out-Null
+reg add "HKLM\zSOFTWARE\policies\microsoft\windows\windowsupdate\au" /v "NoAutoUpdate" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\WindowsStore" /v "AutoDownload" /t REG_DWORD /d "2" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\WindowsStore" /v "DisableOSUpgrade" /t REG_DWORD /d "1" /f | Out-Null
+# Hide recommended section in Windows Start Menu
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\Explorer" /v "HideRecommendedSection" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zNTUSER\Software\Policies\Microsoft\Windows\Explorer" /v "HideRecommendedSection" /t REG_DWORD /d "1" /f | Out-Null
+# Disable Copilot
+reg add "HKLM\zNTUSER\Software\Policies\Microsoft\Windows\WindowsCopilot" /v "TurnOffWindowsCopilot" /t REG_DWORD /d "1" /f | Out-Null
+# Disable GameDVR
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\GameDVR" /v "AllowGameDVR" /t REG_DWORD /d "0" /f | Out-Null
+# Disable Cloud Content
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\CloudContent" /v "DisableCloudOptimizedContent" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\CloudContent" /v "DisableConsumerAccountStateContent" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\CloudContent" /v "DisableSoftLanding" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\CloudContent" /v "DisableWindowsConsumerFeatures" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zNTUSER\Software\Policies\Microsoft\Windows\CloudContent" /v "ConfigureWindowsSpotlight" /t REG_DWORD /d "2" /f | Out-Null
+reg add "HKLM\zNTUSER\Software\Policies\Microsoft\Windows\CloudContent" /v "DisableSpotlightCollectionOnDesktop" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zNTUSER\Software\Policies\Microsoft\Windows\CloudContent" /v "DisableTailoredExperiencesWithDiagnosticData" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zNTUSER\Software\Policies\Microsoft\Windows\CloudContent" /v "DisableThirdPartySuggestions" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zNTUSER\Software\Policies\Microsoft\Windows\CloudContent" /v "DisableWindowsSpotlightFeatures" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zNTUSER\Software\Policies\Microsoft\Windows\CloudContent" /v "DisableWindowsSpotlightOnActionCenter" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zNTUSER\Software\Policies\Microsoft\Windows\CloudContent" /v "DisableWindowsSpotlightOnSettings" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zNTUSER\Software\Policies\Microsoft\Windows\CloudContent" /v "DisableWindowsSpotlightWindowsWelcomeExperience" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zNTUSER\Software\Policies\Microsoft\Windows\CloudContent" /v "IncludeEnterpriseSpotlight" /t REG_DWORD /d "0" /f | Out-Null
+# Disable Smartscreen
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\System" /v "EnableSmartScreen" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Microsoft\PolicyManager\default\Browser\AllowSmartScreen" /v "value" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" /v "SmartScreenEnabled" /t REG_SZ /d "Off" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows Defender\SmartScreen" /v "ConfigureAppInstallControlEnabled" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows Defender\SmartScreen" /v "ConfigureAppInstallControl" /t REG_SZ /d "Anywhere" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Internet Explorer\PhishingFilter" /v "Enabled" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Internet Explorer\PhishingFilter" /v "EnabledV8" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Internet Explorer\PhishingFilter" /v "EnabledV9" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Edge" /v "SmartScreenEnabled" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\MicrosoftEdge\PhishingFilter" /v "EnabledV9" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\Lockdown_Zones\3" /v "2301" /t REG_DWORD /d "3" /f | Out-Null
+# Disable Reversed Storage and Delivery Optimization
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization" /v "DODownloadMode" /t REG_DWORD /d "99" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" /v "DODownloadMode" /t REG_DWORD /d "99" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Microsoft\Windows\CurrentVersion\ReserveManager" /v "ShippedWithReserves" /t REG_DWORD /d "0" /f | Out-Null
+# Restrict Internet Comm
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\InternetManagement" /v "RestrictCommunication" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoPublishingWizard" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows NT\CurrentVersion\Software Protection Platform" /v "NoGenTicket" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Messenger\Client" /v "CEIP" /t REG_DWORD /d "2" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\PCHealth\ErrorReporting" /v "DoReport" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\Windows Error Reporting" /v "Disabled" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" /v "NoInternetOpenWith" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\EventViewer" /v "MicrosoftEventVwrDisableLinks" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\Registration Wizard Control" /v "NoRegistration" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\SQMClient\Windows" /v "CEIPEnable" /t REG_DWORD /d "0" /f | Out-Null
+# Disable Error Reporting
+reg add "HKLM\zSOFTWARE\Microsoft\Windows\Windows Error Reporting" /v "Disabled" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\Windows Error Reporting" /v "DontSendAdditionalData" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\Windows Error Reporting" /v "LoggingDisabled" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\Windows Error Reporting" /v "AutoApproveOSDumps" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\PCHealth\ErrorReporting" /v "IncludeKernelFaults" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\PCHealth\ErrorReporting" /v "AllOrNone" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\PCHealth\ErrorReporting" /v "IncludeMicrosoftApps" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\PCHealth\ErrorReporting" /v "IncludeWindowsApps" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\PCHealth\ErrorReporting" /v "IncludeShutdownErrs" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Dsh" /v "AllowNewsAndInterests" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\PCHealth\ErrorReporting" /v "ForceQueueMode" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\PCHealth\ErrorReporting" /v "ShowUI" /t REG_DWORD /d "0" /f | Out-Null
+reg delete "HKLM\zSOFTWARE\policies\microsoft\pchealth\errorreporting\dw" /v "dwfiletreeroot" /f | Out-Null
+reg delete "HKLM\zSOFTWARE\policies\microsoft\pchealth\errorreporting\dw" /v "dwreporteename" /f | Out-Null
+reg add "HKLM\zSOFTWARE\policies\microsoft\pchealth\errorreporting\dw" /v "DWAllowHeadless" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zSOFTWARE\policies\microsoft\pchealth\errorreporting\dw" /v "DWNoExternalURL" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSOFTWARE\policies\microsoft\pchealth\errorreporting\dw" /v "DWNoFileCollection" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSOFTWARE\policies\microsoft\pchealth\errorreporting\dw" /v "DWNoSecondLevelCollection" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zNTUSER\Software\Policies\Microsoft\Windows\Windows Error Reporting" /v "AutoApproveOSDumps" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zNTUSER\Software\Policies\Microsoft\Windows\Windows Error Reporting" /v "Disabled" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zNTUSER\Software\Policies\Microsoft\Windows\Windows Error Reporting" /v "DontSendAdditionalData" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zNTUSER\Software\Policies\Microsoft\Windows\Windows Error Reporting" /v "LoggingDisabled" /t REG_DWORD /d "1" /f | Out-Null
+# Disable Experiments
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\PreviewBuilds" /v "EnableConfigFlighting" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\PreviewBuilds" /v "EnableExperimentation" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\PreviewBuilds" /v "AllowBuildPreview" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Microsoft\PolicyManager\current\Device\System" /v "AllowExperimentation" /t REG_DWORD /d "0" /f | Out-Null
+# Disable Ads Info 
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo" /v "DisabledByGroupPolicy" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\System" /v "EnableCdp" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo" /v "Enabled" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce" /v "HttpAcceptLanguageOptOut" /t REG_SZ /d "reg add 'HKCU\Control Panel\International\User Profile' /v 'HttpAcceptLanguageOptOut' /t REG_DWORD /d '1' /f" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\DataCollection" /v "AllowTelemetry" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\DataCollection" /v "DisableEnterpriseAuthProxy" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\DataCollection" /v "DoNotShowFeedbackNotifications" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\DataCollection" /v "DisableOneSettingsDownloads" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\DataCollection" /v "AllowCommercialDataPipeline" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\DataCollection" /v "AllowDesktopAnalyticsProcessing" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\DataCollection" /v "AllowDeviceNameInTelemetry" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\DataCollection" /v "LimitDiagnosticLogCollection" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\DataCollection" /v "LimitDumpCollection" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\DataCollection" /v "LimitEnhancedDiagnosticDataWindowsAnalytics" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Microsoft\PolicyManager\default\System\AllowTelemetry" /v "value" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" /v "AllowTelemetry" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" /v "MaxTelemetryAllowed" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" /v "MicrosoftEdgeDataOptIn" /t REG_DWORD /d "0" /f | Out-Null
+# Disable Activity History
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\System" /v "PublishUserActivities" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\System" /v "UploadUserActivities" /t REG_DWORD /d "0" /f | Out-Null
+# Disable App Diagnostics
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\AppPrivacy" /v "LetAppsGetDiagnosticInfo" /t REG_DWORD /d "2" /f | Out-Null
+# Disable Windows Location & Maps
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\LocationAndSensors" /v "DisableLocation" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\LocationAndSensors" /v "DisableLocationScripting" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\LocationAndSensors" /v "DisableSensors" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\LocationAndSensors" /v "DisableWindowsLocationProvider" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zNTUSER\Software\Policies\Microsoft\Windows\LocationAndSensors" /v "DisableLocation" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zNTUSER\Software\Policies\Microsoft\Windows\LocationAndSensors" /v "DisableLocationScripting" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zNTUSER\Software\Policies\Microsoft\Windows\LocationAndSensors" /v "DisableSensors" /t REG_DWORD /d "1" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\Maps" /v "AllowUntriggeredNetworkTrafficOnSettingsPage" /t REG_DWORD /d "0" /f | Out-Null
+reg add "HKLM\zSOFTWARE\Policies\Microsoft\Windows\Maps" /v "AutoDownloadAndUpdateMapData" /t REG_DWORD /d "0" /f | Out-Null
+# Hide Task View Icon
+reg add "HKLM\zNTUSER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ShowTaskViewButton " /t REG_DWORD /d "0" /f | Out-Null
+
 reg unload HKLM\zSOFTWARE | Out-Null
 reg unload HKLM\zSYSTEM | Out-Null
+reg unload HKLM\zNTUSER | Out-Null
 
 Write-Host
 Write-Host "$([char]0x1b)[48;2;20;14;136m=== Adding License"
