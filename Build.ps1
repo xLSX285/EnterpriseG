@@ -1,5 +1,6 @@
+clear
 if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { Start-Process powershell.exe -ArgumentList " -NoProfile -ExecutionPolicy Bypass -File $($MyInvocation.MyCommand.Path)" -Verb RunAs; exit }
-$ScriptVersion = "v2.4.1"
+$ScriptVersion = "v2.5"
 [System.Console]::Title = "Enterprise G Reconstruction $ScriptVersion"
 Set-Location -Path $PSScriptRoot
 
@@ -32,20 +33,19 @@ switch ($detectedBuild) {
     19041 { Download-Files "https://github.com/xLSX285/EnterpriseG/releases/download/2004-22H2_Win10/Microsoft-Windows-Client-LanguagePack-Package_en-us-amd64-en-us.esd" "https://github.com/xLSX285/EnterpriseG/releases/download/2004-22H2_Win10/Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD" }
     17763 { Download-Files "https://github.com/xLSX285/EnterpriseG/releases/download/1809_Win10/Microsoft-Windows-Client-LanguagePack-Package_en-US-AMD64-en-us.esd" "https://github.com/xLSX285/EnterpriseG/releases/download/1809_Win10/Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD" }
     default {
-        Write-Host "$([char]0x1b)[48;2;255;0;0m=== Add language pack and edition specific ESD files to continue - press any Key when done."
-        Write-Host
+        Write-Host "$([char]0x1b)[48;2;255;0;0m=== This build of Windows is not officially supported for reconstruction."
+        Write-Host "Supported builds: 17763 (1809), 19041 (2004), 22000 (21H2), 22621 (22H2 & 22H3) & 26100 (24H2)"
+        Write-Host "Detected build: $detectedBuild"
+        pause
+        exit
     }
 }
-
-$requiredFiles = @("Microsoft-Windows-EditionSpecific*", "Microsoft-Windows-Client-LanguagePack*")
-$missingFiles = $requiredFiles | Where-Object { -not (Test-Path $_) }
-if ($missingFiles) { [System.Media.SystemSounds]::Asterisk.Play(); Write-Host "$([char]0x1b)[48;2;255;0;0m=== Required files are missing: $($missingFiles -join ', ')"; pause; exit }
 
 @("mount", "sxs") | ForEach-Object { if (!(Test-Path $_ -PathType Container)) { New-Item -Path $_ -ItemType Directory -Force | Out-Null } }
 
 $Windows = ($imageInfo.ImageName -split ' ')[1]
-$ProIndex = Get-WindowsImage -ImagePath "install.wim" | Where-Object { $_.ImageName -eq "Windows $Windows Pro" } | Select-Object -ExpandProperty ImageIndex; if (-not $ProIndex) {  Write-Host "$([char]0x1b)[48;2;255;0;0m=== Install.wim does not contain Windows Pro Edition/SKU."; @("mount", "sxs") | ForEach-Object { Remove-Item $_ -Recurse -Force -ErrorAction SilentlyContinue }; pause; exit }
-if ($imageInfo.SPBuild -notmatch "^(1|1000|1001|5001)$") { [System.Media.SystemSounds]::Asterisk.Play(); Write-Host "$([char]0x1b)[48;2;255;0;0m=== Your Install.wim contains updates. You must provide one without." ; @("mount", "sxs") | ForEach-Object { Remove-Item $_ -Recurse -Force -ErrorAction SilentlyContinue }; pause ; exit }
+$ProIndex = Get-WindowsImage -ImagePath "install.wim" | Where-Object { $_.ImageName -eq "Windows $Windows Pro" } | Select-Object -ExpandProperty ImageIndex; if (-not $ProIndex) {  Write-Host "$([char]0x1b)[48;2;255;0;0m=== Install.wim does not contain Windows Pro Edition."; @("mount", "sxs") | ForEach-Object { Remove-Item $_ -Recurse -Force -ErrorAction SilentlyContinue }; pause; exit }
+if ($imageInfo.SPBuild -notmatch "^1$") { [System.Media.SystemSounds]::Asterisk.Play(); Write-Host "$([char]0x1b)[48;2;255;0;0m=== Your Install.wim contains updates. UUPDump.net can help you make an ISO without." ; @("mount", "sxs") | ForEach-Object { Remove-Item $_ -Recurse -Force -ErrorAction SilentlyContinue }; pause; exit }
 
 switch ($detectedBuild) {
     { $_ -lt 19041 } { $Type = "Legacy"; break }
