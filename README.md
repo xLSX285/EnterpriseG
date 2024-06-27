@@ -15,17 +15,23 @@
 
 [![EnterpriseG Reconstruction Guide](https://img.youtube.com/vi/)](https://www.youtube.com/watch?v=K69L4DROtlc "EnterpriseG Reconstruction Guide")
 
-`Files required:`
-- Install.wim image in en-US language that contains no updates (.1) and image must contain Windows Pro Edition
+`All you need to provide is:`
+- Windows 10/11 Pro en-US install.wim image without updates (XXXXX.1)
 
-> The script downloads all required files for you for Build 17763, 19041, 22000, 22621 and 26100. You need to provide an install.wim image, that's it. If you work with other builds, you must obtain Microsoft-Windows-Client-LanguagePack-Package-amd64-en-us.esd and Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD yourself. .esd files are obtainable on [**UUP Dump**](https://uupdump.net/).
+> [**UUP Dump**](https://uupdump.net/) can create a Windows Pro ISO in en-US without updates (untick the **Include updates (Windows converter only)** box).
+>
+Supported Builds: 
+- [17763](https://uupdump.net/selectlang.php?id=6ce50996-86a2-48fd-9080-4169135a1f51) (1809), [19041](https://uupdump.net/selectlang.php?id=a80f7cab-84ed-43f4-bc6b-3e1c3a110028) (2004), [22621](https://uupdump.net/selectlang.php?id=356c1621-04e7-4e66-8928-03a687c3db73) (22H2 & 23H2) & [26100](https://uupdump.net/selectlang.php?id=3d68645c-e4c6-4d51-8858-6421e46cb0bb) (24H2)
+
 
 `How to get started:`
 1. Place install.wim in the directory of the script
-2. Adjust the config.json if necessary
-3. Run **Build.ps1** in PowerShell
+2. Adjust config.json if necessary
+3. Run **Build.ps1** in PowerShell as Administrator
 
-> Make sure you can execute PowerShell scripts. **Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass**
+> Run this command in Powershell if Build.ps1 is not starting. **Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass**
+> 
+After reconstruction has completed, you will find the new install.wim inside the same folder where you also copied the original install.wim to. (**your original install.wim image has been overwritten and cannot be restored at this point!**) You can create a new ISO using AnyBurn or any other software. if you already created a bootable Windows Install USB drive, copy and replace the install.wim, which is located inside the `sources` directory of your windows installation media on your usb drive.
 >
 <div align="center">
   
@@ -35,17 +41,22 @@
 
 ## ActivateWindows
 
-- `True`: Windows will be activated via KMS38 method `Default`
+- `True`: Activate Windows via KMS38 `Default`
 - `False`: Windows wont be activated
 
 ## RemoveEdge
 
-- `True`: Microsoft Edge will be removed `Default`
+- `True`: Bring your own web browser `Default`
 - `False`: Microsoft Edge remains installed
 
 <div align="center">
   
-# Known "issues" with Enterprise G
+# Known "issues" with Enterprise G reconstruction
 </div>
 
-- Inplace upgrade fails on some builds of Windows (e.g 19041 -> 22000/22621.) fix needed.
+- Inplace upgrade fails on some builds of Windows (e.g 19041 -> 22000/22621.) (looking for a fix)
+<div align="center">
+
+# Please note that...
+I'm not actively maintaining this project. I'll push some commits here and there to ensure support for future Windows builds and some optimizations, that's it. This project requires some knowledge. Please don't ask me for help.
+</div>
