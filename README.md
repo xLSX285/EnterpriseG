@@ -55,6 +55,7 @@ After reconstruction has completed, you will find the new install.wim inside the
 </div>
 
 - Inplace upgrade fails on some builds of Windows (e.g 19041 -> 22000/22621.) (looking for a fix)
+- Windows might not be activated on 26100 installs due to the new setup in 24H2 (Workaround: Use previous setup or activate windows using MAS afterwards)
 <div align="center">
 
 # Please note that...
