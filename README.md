@@ -33,7 +33,8 @@ Supported Builds:
 
 > Run this command in Powershell if Build.ps1 is not starting. **Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass**
 > 
-After reconstruction has completed, you will find the new install.wim inside the same folder where you also copied the original install.wim to. (**your original install.wim image has been overwritten and cannot be restored at this point!**) You can create a new ISO using AnyBurn or any other software. if you already created a bootable Windows Install USB drive, copy and replace the install.wim, which is located inside the `sources` directory of your windows installation media on your usb drive.
+Once the reconstruction process is complete, you will find the new `install.wim` file in the same folder where you placed the original install.wim file. (**Please note:** your original `install.wim` file has been overwritten and cannot be restored!)
+To proceed, you can create a new ISO using AnyBurn or any similar software. If you have already created a bootable Windows installation USB drive, simply copy the new `install.wim` file and replace the existing one located in the `sources` directory of your USB drive.
 >
 <div align="center">
   
@@ -56,8 +57,9 @@ After reconstruction has completed, you will find the new install.wim inside the
 # Known "issues" with Enterprise G reconstruction
 </div>
 
-- Inplace upgrade fails on some builds of Windows (e.g 19041 -> 22000/22621.) (looking for a fix)
+- Inplace upgrade might get undone/reverted on some builds of Windows (e.g 19041 -> 22000/22621.) (looking for a fix)
 - Windows might not be activated on 26100 installs due to the new setup in 24H2 (Workaround: Use previous setup or activate windows using MAS afterwards)
+- No ARM64 or 32 Bit support. This project only covers X86_64/AMD64 (64 Bit PCs support only)
 <div align="center">
 
 # Please note that...
@@ -65,5 +67,5 @@ I'm not actively maintaining this project. I'll push some commits here and there
 
 This script WILL NOT automatically fully debloat your Windows system. Instead, it will overwrite the Pro Edition in your install.wim with the Enterprise G Edition of Windows, resulting in the disabling of Windows Defender antivirus, reduced telemetry, and other adjustments (Handled by EnterpriseG SKU product policies).
 
-Please note that the actual EnterpriseG version used by government entities, maintained by CMGE and others, includes additional features and modifications that are not covered by simply running this script or product policies of this SKU.
+Please note that the actual EnterpriseG version used by government entities, maintained by CMGE and others, includes additional features and modifications that are not publicly available and are not covered by simply running this script or product policies of this SKU.
 </div>
