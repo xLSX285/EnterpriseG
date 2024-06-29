@@ -63,5 +63,5 @@ I'm not actively maintaining this project. I'll push some commits here and there
 
 This script WILL NOT automatically fully debloat your Windows system. Instead, it will overwrite the Pro Edition in your install.wim with the Enterprise G Edition of Windows, resulting in the disabling of Windows Defender antivirus, reduced telemetry, and other adjustments (Handled by EnterpriseG SKU product policies).
 
-Please note that the actual EnterpriseG version used by government entities, maintained by CMGE and others, includes additional features and modifications that are not covered by simply running this script.
+Please note that the actual EnterpriseG version used by government entities, maintained by CMGE and others, includes additional features and modifications that are not covered by simply running this script or product policies of this SKU.
 </div>
