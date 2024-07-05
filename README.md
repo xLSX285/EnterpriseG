@@ -28,7 +28,7 @@ Supported Builds:
 
 `How to get started:`
 1. Place install.wim in the directory of the script
-2. Adjust config.json if necessary
+2. Adjust config.ini if necessary
 3. Run **Build.ps1** in PowerShell as Administrator
 
 > Run this command in Powershell if Build.ps1 is not starting. **Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass**
@@ -38,19 +38,19 @@ To proceed, you can create a new ISO using AnyBurn or any similar software. If y
 >
 <div align="center">
   
-# Config.json
+# Config.ini
 
 </div>
 
 ## ActivateWindows
 
-- `True`: Activate Windows via KMS38 `Default`
-- `False`: Windows wont be activated
+- `true`: Activate Windows via KMS38 `Default`
+- `false`: Windows wont be activated
 
 ## RemoveEdge
 
-- `True`: Bring your own web browser `Default`
-- `False`: Microsoft Edge remains installed
+- `true`: Bring your own web browser `Default`
+- `false`: Microsoft Edge remains installed
 
 <div align="center">
   

@@ -1,14 +1,18 @@
 clear
 if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { Start-Process powershell.exe -ArgumentList " -NoProfile -ExecutionPolicy Bypass -File $($MyInvocation.MyCommand.Path)" -Verb RunAs; exit }
-$ScriptVersion = "v2.5.1"
+$ScriptVersion = "v2.6.0"
 [System.Console]::Title = "Enterprise G Reconstruction $ScriptVersion"
 Set-Location -Path $PSScriptRoot
 
-$requiredWIM = @("install.wim")
-$missingWIM = $requiredWIM | Where-Object { -not (Test-Path $_) }
-if ($missingWIM) { [System.Media.SystemSounds]::Asterisk.Play(); Write-Host "$([char]0x1b)[48;2;255;0;0m=== Install.wim could not be found."; pause; exit }
+$WimFile = Get-ChildItem -Path $PSScriptRoot -Filter "*.wim" | Select-Object -First 1
 
-$imageInfo = Get-WindowsImage -ImagePath "install.wim" -index:1
+if (-not $WimFile) {
+    Write-Host "$([char]0x1b)[48;2;255;0;0m=== No valid installation media found."
+    pause
+    exit
+}
+
+$imageInfo = Get-WindowsImage -ImagePath "$WimFile" -index:1
 $Build = $imageInfo.Version
 $detectedBuild = [int]($Build -replace '1[0-9]\.\d+\.', '')
 
@@ -18,12 +22,30 @@ function Download-Files {
         [string]$editionUri
     )
     $webClient = New-Object Net.WebClient
-    Write-Host "$([char]0x1b)[48;2;20;14;136m=== Downloading Language Pack"
+    Write-Host "$([char]0x1b)[48;2;20;14;136m=== Downloading Language Pack . . ."
     Write-Host
     $webClient.DownloadFile($buildUri, "$PSScriptRoot\Microsoft-Windows-Client-LanguagePack-Package-amd64-en-us.esd")
-    Write-Host "$([char]0x1b)[48;2;20;14;136m=== Downloading Edition Files"
+    Write-Host "$([char]0x1b)[48;2;20;14;136m=== Downloading Edition Files . . ."
     $webClient.DownloadFile($editionUri, "$PSScriptRoot\Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD")
     cls 
+}
+
+function Get-IniContent {
+    param (
+        [string]$FilePath
+    )
+    $ini = @{}
+    switch -regex -file $FilePath {
+        "^\[(.+)\]$" {
+            $section = $matches[1]
+            $ini[$section] = @{}
+        }
+        "^([^#].+?)\s*=\s*(.*)" {
+            $name, $value = $matches[1..2]
+            $ini[$section][$name] = $value
+        }
+    }
+    return $ini
 }
 
 switch ($detectedBuild) {
@@ -33,9 +55,8 @@ switch ($detectedBuild) {
     19041 { Download-Files "https://github.com/xLSX285/EnterpriseG/releases/download/2004-22H2_Win10/Microsoft-Windows-Client-LanguagePack-Package_en-us-amd64-en-us.esd" "https://github.com/xLSX285/EnterpriseG/releases/download/2004-22H2_Win10/Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD" }
     17763 { Download-Files "https://github.com/xLSX285/EnterpriseG/releases/download/1809_Win10/Microsoft-Windows-Client-LanguagePack-Package_en-US-AMD64-en-us.esd" "https://github.com/xLSX285/EnterpriseG/releases/download/1809_Win10/Microsoft-Windows-EditionSpecific-EnterpriseG-Package.ESD" }
     default {
-        Write-Host "$([char]0x1b)[48;2;255;0;0m=== This build of Windows is not officially supported for reconstruction."
-        Write-Host "Supported builds: 17763 (1809), 19041 (2004), 22000 (21H2), 22621 (22H2 & 22H3) & 26100 (24H2)"
-        Write-Host "Detected build: $detectedBuild"
+        Write-Host "$([char]0x1b)[48;2;255;0;0m=== Build $detectedBuild is not supported for reconstruction."
+        Write-Host "Supported builds: 17763, 19041, 22000, 22621, 26100"
         pause
         exit
     }
@@ -44,8 +65,27 @@ switch ($detectedBuild) {
 @("mount", "sxs") | ForEach-Object { if (!(Test-Path $_ -PathType Container)) { New-Item -Path $_ -ItemType Directory -Force | Out-Null } }
 
 $Windows = ($imageInfo.ImageName -split ' ')[1]
-$ProIndex = Get-WindowsImage -ImagePath "install.wim" | Where-Object { $_.ImageName -match "Windows $Windows Pro(fessional)?" } | Select-Object -ExpandProperty ImageIndex; if (-not $ProIndex) {  Write-Host "$([char]0x1b)[48;2;255;0;0m=== Install.wim does not contain Windows Pro Edition."; @("mount", "sxs") | ForEach-Object { Remove-Item $_ -Recurse -Force -ErrorAction SilentlyContinue }; pause; exit }
-if ($imageInfo.SPBuild -notmatch "^1$") { [System.Media.SystemSounds]::Asterisk.Play(); Write-Host "$([char]0x1b)[48;2;255;0;0m=== Your Install.wim contains updates. UUPDump.net can help you make an ISO without." ; @("mount", "sxs") | ForEach-Object { Remove-Item $_ -Recurse -Force -ErrorAction SilentlyContinue }; pause; exit }
+$WindowsImages = Get-WindowsImage -ImagePath "$WimFile"
+$ProIndex = $WindowsImages | Where-Object { $_.ImageName -match "Windows $Windows Pro(fessional)?" } | Select-Object -ExpandProperty ImageIndex
+
+if (-not $ProIndex) {
+    Write-Host "$([char]0x1b)[48;2;255;0;0m=== $WimFile does not contain Windows $Windows Pro"
+    Write-Host ""
+    Write-Host "Editions found:"
+    $WindowsImages | ForEach-Object { Write-Host " * $($_.ImageName)" }
+    @("mount", "sxs") | ForEach-Object { Remove-Item $_ -Recurse -Force -ErrorAction SilentlyContinue }
+    pause
+    exit
+}
+
+if ($imageInfo.SPBuild -notmatch "^1$") { 
+    [System.Media.SystemSounds]::Asterisk.Play()
+    Write-Host "$([char]0x1b)[48;2;255;0;0m=== $WimFile contains updates. Use UUPDump.net to create an ISO without updates included."
+    Write-Host "$([char]0x1b)[48;2;255;0;0mDetected SPBuild: .$($imageInfo.SPBuild) (updates found) | Required SPBuild: .1 (No updates)"
+    @("mount", "sxs") | ForEach-Object { Remove-Item $_ -Recurse -Force -ErrorAction SilentlyContinue }
+    pause
+    exit
+}
 
 switch ($detectedBuild) {
     { $_ -lt 19041 } { $Type = "Legacy"; break }
@@ -53,9 +93,9 @@ switch ($detectedBuild) {
     default { $Type = "24H2" }
 }
 
-$config = (Get-Content "config.json" -Raw) | ConvertFrom-Json
-$ActivateWindows = $config.ActivateWindows
-$RemoveEdge = $config.RemoveEdge
+$Config = Get-IniContent -FilePath "config.ini"
+$ActivateWindows = $Config.Settings.ActivateWindows
+$RemoveEdge = $Config.Settings.RemoveEdge
 $startTime = Get-Date
 Write-Host "Enterprise G Reconstruction $ScriptVersion"
 Write-Host
@@ -66,7 +106,6 @@ Write-Host
 Write-Host "- ActivateWindows: $ActivateWindows"
 Write-Host "- RemoveEdge: $RemoveEdge"
 Write-Host
-
 Write-Host
 Write-Host "$([char]0x1b)[48;2;20;14;136m=== Preparing Files"
 $editionesd = (Get-ChildItem -Filter "Microsoft-Windows-EditionSpecific*.esd").Name
@@ -77,8 +116,8 @@ Move-Item -Path $lpesd.FullName -Destination .\sxs\ | Out-Null
 
 Write-Host
 Write-Host "$([char]0x1b)[48;2;20;14;136m=== Mounting Image"
-Set-ItemProperty -Path "install.wim" -Name IsReadOnly -Value $false | Out-Null
-dism /Mount-Wim /WimFile:"install.wim" /Index:$ProIndex /MountDir:"mount" | Out-Null
+Set-ItemProperty -Path "$WimFile" -Name IsReadOnly -Value $false | Out-Null
+dism /Mount-Wim /WimFile:"$WimFile" /Index:$ProIndex /MountDir:"mount" | Out-Null
 
 if ($Type -in "Normal", "24H2", "Legacy") {
     Copy-Item -Path "files\sxs\$Type\*.*" -Destination "sxs\" -Force
@@ -97,7 +136,7 @@ Remove-Item -Path mount\Windows\*.xml -ErrorAction SilentlyContinue
 Copy-Item -Path mount\Windows\servicing\Editions\EnterpriseGEdition.xml -Destination mount\Windows\EnterpriseG.xml -ErrorAction SilentlyContinue
 
 Write-Host
-Write-Host "$([char]0x1b)[48;2;20;14;136m=== Setting SKU to Enterprise G"
+Write-Host "$([char]0x1b)[48;2;20;14;136m=== Setting Edition to Enterprise G"
 dism /image:mount /apply-unattend:mount\Windows\EnterpriseG.xml | Out-Null
 if ($Type -eq "24H2") {
     Dism /Image:mount /Set-Edition:EnterpriseG /AcceptEula /ProductKey:FV469-WGNG4-YQP66-2B2HY-KD8YX | Out-Null
@@ -108,12 +147,12 @@ $currentEdition = (dism /image:mount /get-currentedition | Out-String)
 
 if ($currentEdition -match "EnterpriseG") {
     Write-Host
-    Write-Host "$([char]0x1b)[48;2;20;14;136m=== SKU successfully updated to EnterpriseG"
+    Write-Host "$([char]0x1b)[48;2;20;14;136m=== Editon successfully updated to EnterpriseG"
 } else {
     Write-Host
     Write-Host "$([char]0x1b)[48;2;255;0;0m=== Reconstruction failed. Undoing changes..."
     Write-Host
-    Write-Host "$([char]0x1b)[48;2;20;14;136m=== Unmounting Install.wim"
+    Write-Host "$([char]0x1b)[48;2;20;14;136m=== Unmounting $WimFile"
     dism /unmount-wim /mountdir:mount /discard | Out-Null
     Write-Host
     @("mount", "sxs") | ForEach-Object { if (Test-Path $_ -ErrorAction SilentlyContinue) { Remove-Item $_ -Recurse -Force -ErrorAction SilentlyContinue } }
@@ -279,7 +318,7 @@ reg unload HKLM\zSYSTEM | Out-Null
 reg unload HKLM\zNTUSER | Out-Null
 
 Write-Host
-Write-Host "$([char]0x1b)[48;2;20;14;136m=== Adding License"
+Write-Host "$([char]0x1b)[48;2;20;14;136m=== Adding EULA"
 if ($Type -eq "24H2") {
     takeown /f "mount\Windows\System32\en-US\Licenses\_Default\EnterpriseG\placeholder.rtf" | Out-Null 
     icacls "mount\Windows\System32\en-US\Licenses\_Default\EnterpriseG\placeholder.rtf" /grant:r "$($env:USERNAME):(W)" | Out-Null
@@ -290,11 +329,11 @@ if ($Type -eq "24H2") {
 else {
     $licensePath = "mount\Windows\System32\Licenses\neutral\_Default\EnterpriseG"; if (-not (Test-Path -Path $licensePath -PathType Container)) { New-Item -Path $licensePath -ItemType Directory -Force }
     Copy-Item -Path "files\License\license.rtf" -Destination "mount\Windows\System32\Licenses\neutral\_Default\EnterpriseG\license.rtf" -Force | Out-Null
-Write-Host
+    Write-Host
 }
 
 if ($ActivateWindows -eq "True") {
-    Write-Host "$([char]0x1b)[48;2;20;14;136m=== Adding Activation Script for Windows"
+    Write-Host "$([char]0x1b)[48;2;20;14;136m=== Adding Activation Script"
     New-Item -ItemType Directory -Path "mount\Windows\Setup\Scripts" -Force | Out-Null
     Copy-Item -Path "files\Scripts\SetupComplete.cmd" -Destination "mount\Windows\Setup\Scripts\SetupComplete.cmd" -Force
     Copy-Item -Path "files\Scripts\activate_kms38.cmd" -Destination "mount\Windows\Setup\Scripts\activate_kms38.cmd" -Force
@@ -334,16 +373,16 @@ Write-Host "$([char]0x1b)[48;2;20;14;136m=== Resetting Base"
 Dism /Image:mount /Cleanup-Image /StartComponentCleanup /ResetBase | Out-Null
 Write-Host
 
-Write-Host "$([char]0x1b)[48;2;20;14;136m=== Unmounting Install.wim"
+Write-Host "$([char]0x1b)[48;2;20;14;136m=== Unmounting $WimFile"
 dism /unmount-wim /mountdir:mount /commit | Out-Null
 Write-Host
 
-Write-Host "$([char]0x1b)[48;2;20;14;136m=== Optimizing Install.wim"
-& "files\wimlib-imagex" optimize install.wim | Out-Null
+Write-Host "$([char]0x1b)[48;2;20;14;136m=== Optimizing $WimFile"
+& "files\wimlib-imagex" optimize $WimFile | Out-Null
 Write-Host
 
 Write-Host "$([char]0x1b)[48;2;20;14;136m=== Setting WIM Infos and Flags"
-& "files\wimlib-imagex" info install.wim $ProIndex --image-property NAME="Windows $Windows Enterprise G" --image-property DESCRIPTION="Windows $Windows Enterprise G" --image-property FLAGS="EnterpriseG" --image-property DISPLAYNAME="Windows $Windows Enterprise G" --image-property DISPLAYDESCRIPTION="Windows $Windows Enterprise G" | Out-Null
+& "files\wimlib-imagex" info $WimFile $ProIndex --image-property NAME="Windows $Windows Enterprise G" --image-property DESCRIPTION="Windows $Windows Enterprise G" --image-property FLAGS="EnterpriseG" --image-property DISPLAYNAME="Windows $Windows Enterprise G" --image-property DISPLAYDESCRIPTION="Windows $Windows Enterprise G" | Out-Null
 Write-Host
 
 @("mount", "sxs") | ForEach-Object { if (Test-Path $_ -ErrorAction SilentlyContinue) { Remove-Item $_ -Recurse -Force -ErrorAction SilentlyContinue } }
