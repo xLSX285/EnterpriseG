@@ -44,7 +44,7 @@ switch ($detectedBuild) {
 @("mount", "sxs") | ForEach-Object { if (!(Test-Path $_ -PathType Container)) { New-Item -Path $_ -ItemType Directory -Force | Out-Null } }
 
 $Windows = ($imageInfo.ImageName -split ' ')[1]
-$ProIndex = Get-WindowsImage -ImagePath "install.wim" | Where-Object { $_.ImageName -eq "Windows $Windows Pro" } | Select-Object -ExpandProperty ImageIndex; if (-not $ProIndex) {  Write-Host "$([char]0x1b)[48;2;255;0;0m=== Install.wim does not contain Windows Pro Edition."; @("mount", "sxs") | ForEach-Object { Remove-Item $_ -Recurse -Force -ErrorAction SilentlyContinue }; pause; exit }
+$ProIndex = Get-WindowsImage -ImagePath "install.wim" | Where-Object { $_.ImageName -match "Windows $Windows Pro(fessional)?" } | Select-Object -ExpandProperty ImageIndex; if (-not $ProIndex) {  Write-Host "$([char]0x1b)[48;2;255;0;0m=== Install.wim does not contain Windows Pro Edition."; @("mount", "sxs") | ForEach-Object { Remove-Item $_ -Recurse -Force -ErrorAction SilentlyContinue }; pause; exit }
 if ($imageInfo.SPBuild -notmatch "^1$") { [System.Media.SystemSounds]::Asterisk.Play(); Write-Host "$([char]0x1b)[48;2;255;0;0m=== Your Install.wim contains updates. UUPDump.net can help you make an ISO without." ; @("mount", "sxs") | ForEach-Object { Remove-Item $_ -Recurse -Force -ErrorAction SilentlyContinue }; pause; exit }
 
 switch ($detectedBuild) {
