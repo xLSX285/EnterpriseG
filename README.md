@@ -2,7 +2,7 @@
 <div align="center">
 
 ## [Download Latest Version](https://github.com/xLSX285/EnterpriseG/archive/refs/heads/main.zip)
-# Read this README thoroughly before proceeding.
+# Read the Important section of this README thoroughly before proceeding.
 </div>
 
 <div align="center">
