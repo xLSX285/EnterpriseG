@@ -1,9 +1,10 @@
 ![LSX presents](https://github.com/xLSX285/EnterpriseG/assets/129116755/4957cf9b-42fe-4e70-9a33-d3450cbc9a52)
-
 <div align="center">
 
 ## [Download Latest Version](https://github.com/xLSX285/EnterpriseG/archive/refs/heads/main.zip)
+# Read this README thoroughly before proceeding.
 </div>
+
 <div align="center">
   <img src="https://github.com/xLSX285/EnterpriseG/assets/129116755/0eaff5b7-caa8-48e4-898f-cc38254712d6" alt="Image Description">
 </div>
@@ -13,7 +14,7 @@
 # How to reconstruct Enterprise G
 </div>
 
-[![EnterpriseG Reconstruction Guide](https://img.youtube.com/vi/)](https://www.youtube.com/watch?v=K69L4DROtlc "EnterpriseG Reconstruction Guide")
+[![EnterpriseG Reconstruction Process](https://img.youtube.com/vi/)](https://www.youtube.com/watch?v=n-bu1me3Vc4 "EnterpriseG Reconstruction Process")
 
 `All you need to provide is:`
 - Windows 10/11 Pro en-US install.wim image without updates (XXXXX.1)
@@ -62,10 +63,14 @@ To proceed, you can create a new ISO using AnyBurn or any similar software. If y
 - No ARM64 or 32 Bit support. This project only covers X86_64/AMD64 (64 Bit PCs support only)
 <div align="center">
 
-# Please note that...
-I'm not actively maintaining this project. I'll push some commits here and there to ensure support for future Windows builds and some optimizations, that's it. This project requires some knowledge. Please don't ask me for help.
+# Important
+I'm not actively maintaining this project. I'll push some commits here and there to ensure support for future Windows builds and some optimizations, that's it. This project requires some knowledge. No support will be provided.
 
-This script WILL NOT automatically fully debloat your Windows system. Instead, it will overwrite the Pro Edition in your install.wim with the Enterprise G Edition of Windows, resulting in the disabling of Windows Defender antivirus, reduced telemetry, and other adjustments (Handled by EnterpriseG SKU product policies).
+THIS PROJECT DOES NOT DEBLOAT WINDOWS. It replaces Windows Pro with the Windows Enterprise G SKU used by various government entities. Enterprise G comes with some product policies applied by default, such as a disabled Windows Defender antivirus and reduced telemetry.
 
-Please note that the actual EnterpriseG version used by government entities, maintained by CMGE and others, includes additional features and modifications that are not publicly available and are not covered by simply running this script or product policies of this SKU.
+While some parts of the Chinese government, for example, use this exact edition of Windows, they have additional modifications that are not available to the general public.
+
+If you're actually interested in running the exact same version as them, you're better off Googling "Windows 10 Enterprise G CMGE_V2020-L.1207" – there are leaks circulating around.
+
+You shouldn't be using this daily, unless you really want to. This is just for fun.
 </div>
